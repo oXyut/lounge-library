@@ -5,7 +5,7 @@ import { createWorker } from 'tesseract.js';
 import { setCommentRange } from 'typescript';
 
 const videoConstraints = {
-  facingMode: 'user',
+  facingMode: 'environment',
   width: 300,
   height: 300
 };
