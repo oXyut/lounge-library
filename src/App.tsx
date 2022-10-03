@@ -2,7 +2,6 @@ import './App.css';
 import Webcam from 'react-webcam';
 import { useRef, useCallback, useState, useEffect } from 'react';
 import { createWorker } from 'tesseract.js';
-import { setCommentRange } from 'typescript';
 
 const videoConstraints = {
   facingMode: 'environment',
