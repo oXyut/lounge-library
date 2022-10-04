@@ -3,28 +3,28 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 import { createWorker } from 'tesseract.js';
 import styled from 'styled-components';
 import { Camera, CameraType } from 'react-camera-pro';
+import { Box, Button, TextField, Typography } from '@mui/material';
+import { setCommentRange } from 'typescript';
+import axios, { AxiosResponse } from "axios";
+import r from "../lib/googleApi.json"
 
-const videoConstraints = {
-  facingMode: 'environment',
-  width: 300,
-  height: 300
-};
-const w = 300, h = 300;
+type RES = typeof r
 
-const Gomi = styled.div`
-  height: 20rem;
-  display:block;
-`;
 const Wrapper = styled.div`
   position: absolute;
   width: 100%;
   height: 20rem;
-  z-index: -10;
+  border: dashed;
 `;
 
 function App() {
   const [image, setImage] = useState<string | null | undefined>(null)
-  const [ocr, setOcr] = useState('予測中')
+  const [ocr, setOcr] = useState<string>('')
+  const [isbn, setIsbn] = useState<string>('')
+  const [title, setTitle] = useState<string>('')
+  const [authors, setAuthors] = useState<string[]>([''])
+  const [studentNo, setStudentNo] = useState<string>('')
+  const [isCamOn, setIsCamOn] = useState<boolean>(false)
   const camera = useRef<CameraType>(null);
   const capture = useCallback(
     () => {
@@ -49,41 +49,99 @@ function App() {
     await worker.initialize('eng');
     const { data: { text } } = await worker.recognize(img);
     setOcr(text);
+
+    const result = text.match(/(I|1)(S|5|s)(B|8|5)N[0-9 -]{9,18}/)
+    if(result){
+      let resultString = result[0].toString()
+      console.log(resultString)
+      resultString = resultString.slice(4).replace("-", "").replace(" ", "")
+      setIsbn(resultString)
+    }
+  }
+  const toggleCam = () => {
+    setIsCamOn(!isCamOn)
+  }
+  const searchBook = (e: React.ChangeEvent<HTMLInputElement>) =>{
+    const isbn = e.target.value
+    setIsbn(e.target.value)
+    const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
+    axios.get(url)
+      .then((res: AxiosResponse<RES>) => {
+      // .then((res: any) => {
+        console.log(res)
+        if(res.data.totalItems > 0){
+          console.log(res.data.items[0].volumeInfo.title)
+          setTitle(res.data.items[0].volumeInfo.title)
+          setAuthors(res.data.items[0].volumeInfo.authors)
+        }
+      })
   }
 
   return (
     <>
-
     {
-      image == null &&
+      isCamOn &&
+      <>
+      {
+        image == null &&
+        <>
+          <Wrapper>
+            <Camera
+                ref={camera}
+                facingMode="environment"
+                errorMessages={{
+                  noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
+                  permissionDenied: 'Permission denied. Please refresh and give camera permission.',
+                  switchCamera:
+                    'It is not possible to switch camera to different one because there is only one video device accessible.',
+                  canvas: 'Canvas is not supported.',
+                }}
+              />
+            </Wrapper>
+            <Box sx={{height: "20rem"}}/>
+        <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
+        <Button onClick={capture} variant="contained">文字を読み取る</Button>
+        </>
+      }
+      {
+        image != null &&
+        <>
+        <img src={image} width={ "100%" }/>
+        <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
+        <Button onClick={delImage} variant="contained">リトライ</Button>
+        </>
+      }
+      </>
+    }
+    {
+      !isCamOn &&
       <>
       <Wrapper>
-        <Camera
-            ref={camera}
-            facingMode="environment"
-            errorMessages={{
-              noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
-              permissionDenied: 'Permission denied. Please refresh and give camera permission.',
-              switchCamera:
-                'It is not possible to switch camera to different one because there is only one video device accessible.',
-              canvas: 'Canvas is not supported.',
-            }}
-          />
+        <Button onClick={toggleCam} variant="contained">ISBN をカメラで読み取る</Button>
       </Wrapper>
-      <Gomi>
-      </Gomi>
-      <button onClick={capture}>文字を読み取る</button>
+      <Box sx={{height: "20rem"}}/>
       </>
     }
-    {
-      image != null &&
-      <>
-      <img src={image} width={ "100%" }/>
-      <button onClick={delImage}>リトライ</button>
-      </>
-    }
-
     <p>{ocr}</p>
+
+    <TextField
+      value={isbn}
+      label="ISBN"
+      onChange={searchBook}
+    ></TextField>
+    <TextField
+      value={studentNo}
+      label="学籍番号"
+    ></TextField>
+    <Button variant="contained">
+      借りる
+    </Button>
+    <Typography>
+      {
+        title != "" &&
+        authors.join(", ") + "「" + title + "」"
+      }
+    </Typography>
     </>
   );
 }
