@@ -54,16 +54,20 @@ function App() {
     if(result){
       let resultString = result[0].toString()
       console.log(resultString)
-      resultString = resultString.slice(4).replace("-", "").replace(" ", "")
+      resultString = resultString.slice(4).replaceAll("-", "").replaceAll(" ", "")
       setIsbn(resultString)
     }
   }
+
   const toggleCam = () => {
     setIsCamOn(!isCamOn)
   }
-  const searchBook = (e: React.ChangeEvent<HTMLInputElement>) =>{
-    const isbn = e.target.value
-    setIsbn(e.target.value)
+
+useEffect(() =>{
+    // console.log(isbn)
+    // console.log(isbn.length)
+    // console.log((isbn.length===9) || (isbn.length===10) || (isbn.length===13))
+    if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){ 
     const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
     axios.get(url)
       .then((res: AxiosResponse<RES>) => {
@@ -73,8 +77,19 @@ function App() {
           console.log(res.data.items[0].volumeInfo.title)
           setTitle(res.data.items[0].volumeInfo.title)
           setAuthors(res.data.items[0].volumeInfo.authors)
+        } else {
+          setTitle("")
+          setAuthors([""])
         }
       })
+    } else {
+      return
+    }
+  }, [isbn])
+
+  const isbnOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
+    const _isbn = e.target.value
+    setIsbn(_isbn)
   }
 
   return (
@@ -127,7 +142,7 @@ function App() {
     <TextField
       value={isbn}
       label="ISBN"
-      onChange={searchBook}
+      onChange={isbnOnChangeHandler}
     ></TextField>
     <TextField
       value={studentNo}
