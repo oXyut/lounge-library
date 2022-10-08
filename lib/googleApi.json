@@ -1,0 +1,75 @@
+{
+    "kind": "books#volumes",
+    "totalItems": 1,
+    "items": [
+      {
+        "kind": "books#volume",
+        "id": "AIBhvgAACAAJ",
+        "etag": "OtQw6H9ENAk",
+        "selfLink": "https://www.googleapis.com/books/v1/volumes/AIBhvgAACAAJ",
+        "volumeInfo": {
+          "title": "群と物理",
+          "authors": [
+            "佐藤光"
+          ],
+          "publishedDate": "2016-10-25",
+          "description": "群論は、自然界に内在する規則性を、より統一的に把握するためにたいへん有効であり、物理学を体系的に学ぶために不可欠のものである。本書は、群の中でも物理によく出てくる「リー群」を中心に、概念をつかんで使えるようになることを目標としている。数学的基礎概念から具体的応用まで、物理的内容に例を取りながら解説した本書は、量子力学・ゲージ理論を理解し、発展的に使いこなすために、おおいに役立つ。本書により物理学の展望が開けることであろう。「パリティ物理学コース物理数学特論群と物理」待望の改訂。",
+          "industryIdentifiers": [
+            {
+              "type": "ISBN_10",
+              "identifier": "4621300849"
+            },
+            {
+              "type": "ISBN_13",
+              "identifier": "9784621300848"
+            }
+          ],
+          "readingModes": {
+            "text": false,
+            "image": false
+          },
+          "pageCount": 254,
+          "printType": "BOOK",
+          "maturityRating": "NOT_MATURE",
+          "allowAnonLogging": false,
+          "contentVersion": "preview-1.0.0",
+          "panelizationSummary": {
+            "containsEpubBubbles": false,
+            "containsImageBubbles": false
+          },
+          "imageLinks": {
+            "smallThumbnail": "http://books.google.com/books/content?id=AIBhvgAACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+            "thumbnail": "http://books.google.com/books/content?id=AIBhvgAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+          },
+          "language": "ja",
+          "previewLink": "http://books.google.co.jp/books?id=AIBhvgAACAAJ&dq=isbn:9784621300848&hl=&cd=1&source=gbs_api",
+          "infoLink": "http://books.google.co.jp/books?id=AIBhvgAACAAJ&dq=isbn:9784621300848&hl=&source=gbs_api",
+          "canonicalVolumeLink": "https://books.google.com/books/about/%E7%BE%A4%E3%81%A8%E7%89%A9%E7%90%86.html?hl=&id=AIBhvgAACAAJ"
+        },
+        "saleInfo": {
+          "country": "JP",
+          "saleability": "NOT_FOR_SALE",
+          "isEbook": false
+        },
+        "accessInfo": {
+          "country": "JP",
+          "viewability": "NO_PAGES",
+          "embeddable": false,
+          "publicDomain": false,
+          "textToSpeechPermission": "ALLOWED",
+          "epub": {
+            "isAvailable": false
+          },
+          "pdf": {
+            "isAvailable": false
+          },
+          "webReaderLink": "http://play.google.com/books/reader?id=AIBhvgAACAAJ&hl=&printsec=frontcover&source=gbs_api",
+          "accessViewStatus": "NONE",
+          "quoteSharingAllowed": false
+        },
+        "searchInfo": {
+          "textSnippet": "物理学を体系的に学ぶうえで不可欠な群論について、数学的厳密性より物理的応用に重きを置き、物理的対象からわかりやすく導入。"
+        }
+      }
+    ]
+  }
