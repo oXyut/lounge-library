@@ -2,20 +2,13 @@ import './App.css';
 import { useRef, useCallback, useState, useEffect } from 'react';
 import { createWorker } from 'tesseract.js';
 import styled from 'styled-components';
-import { Camera, CameraType } from 'react-camera-pro';
+import Webcam from 'react-webcam';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse } from "axios";
 import r from "../lib/googleApi.json"
 
 type RES = typeof r
-
-const Wrapper = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 20rem;
-  border: dashed;
-`;
 
 function App() {
   const [image, setImage] = useState<string | null | undefined>(null)
@@ -25,17 +18,27 @@ function App() {
   const [authors, setAuthors] = useState<string[]>([''])
   const [studentNo, setStudentNo] = useState<string>('')
   const [isCamOn, setIsCamOn] = useState<boolean>(false)
-  const camera = useRef<CameraType>(null);
+  
+  const webcamRef = useRef<Webcam>(null);
+
+  const videoConstraints = {
+    width: 1920,
+    height: 1080,
+    facingMode: "environment"
+  };
+
+
   const capture = useCallback(
     () => {
-      const imageSrc = camera.current?.takePhoto();
+      const imageSrc = webcamRef.current?.getScreenshot();
       if( imageSrc != null){
         setImage(imageSrc)
         doOCR(imageSrc)
       }
     },
-    [camera]
+    [webcamRef]
   )
+
   const delImage = () =>{
     setImage(null)
   }
@@ -95,47 +98,61 @@ useEffect(() =>{
   return (
     <>
     {
-      isCamOn &&
-      <>
-      {
-        image == null &&
+      isCamOn ? (
         <>
-          <Wrapper>
-            <Camera
-                ref={camera}
-                facingMode="environment"
-                errorMessages={{
-                  noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
-                  permissionDenied: 'Permission denied. Please refresh and give camera permission.',
-                  switchCamera:
-                    'It is not possible to switch camera to different one because there is only one video device accessible.',
-                  canvas: 'Canvas is not supported.',
+        {
+          image == null ? (
+            <>
+              <Box
+                sx={{
+                  width: "30em",
+                  height: "30em",
+                  border: "1px solid black",
                 }}
-              />
-            </Wrapper>
-            <Box sx={{height: "20rem"}}/>
-        <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
-        <Button onClick={capture} variant="contained">文字を読み取る</Button>
+              >
+                <Webcam
+                  audio={false}
+                  ref={webcamRef}
+                  forceScreenshotSourceSize
+                  screenshotFormat="image/jpeg"
+                  width="100%"
+                  height="100%"
+                  videoConstraints={videoConstraints}
+                />
+              </Box>
+              <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
+              <Button onClick={capture} variant="contained">文字を読み取る</Button>
+            </>
+          ) : (
+            <>
+              <Box
+                sx={{
+                  width: "30em",
+                  height: "30em",
+                  border: "1px solid black",
+                }}
+              >
+                <img src={image} width="100%" height="auto" />
+              </Box>
+              <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
+              <Button onClick={delImage} variant="contained">リトライ</Button>
+            </>
+          )
+        }
         </>
-      }
-      {
-        image != null &&
+      ) : (
         <>
-        <img src={image} width={ "100%" }/>
-        <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
-        <Button onClick={delImage} variant="contained">リトライ</Button>
+          <Box
+            sx={{
+              // width: imageDisplaySize.width,
+              // height: imageDisplaySize.height,
+              bgcolor: "black"
+            }}
+          >
+            <Button onClick={toggleCam} variant="contained">ISBN をカメラで読み取る</Button>
+          </Box>
         </>
-      }
-      </>
-    }
-    {
-      !isCamOn &&
-      <>
-      <Wrapper>
-        <Button onClick={toggleCam} variant="contained">ISBN をカメラで読み取る</Button>
-      </Wrapper>
-      <Box sx={{height: "20rem"}}/>
-      </>
+      )
     }
     <p>{ocr}</p>
 
