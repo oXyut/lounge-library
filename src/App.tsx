@@ -4,9 +4,11 @@ import { createWorker } from 'tesseract.js';
 import styled from 'styled-components';
 import { Camera, CameraType } from 'react-camera-pro';
 import { Box, Button, TextField, Typography } from '@mui/material';
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse } from "axios";
 import r from "../lib/googleApi.json"
+
 
 type RES = typeof r
 
@@ -29,7 +31,8 @@ function App() {
   const [studentId, setStudentId] = useState<string>('')
   const [isCamOn, setIsCamOn] = useState<boolean>(false)
 
-  const [lendingList, setlendingList] = useState([]) // 本の貸出状況を格納するjsonの配列．今型チェックがうまくいっていない
+  // Axios Response Type
+  const [lendingList, setlendingList] = useState<any>()
   const [isBookExist, setIsBookExist] = useState<boolean>(false) // 入力されたisbnの本が存在するかどうか
 
   const camera = useRef<CameraType>(null);
@@ -75,7 +78,7 @@ function App() {
     const response = await axios.post<RES>(getDatabaseURL, {
     })
     console.log(response.data);
-    // setlendingList(response.data);
+    setlendingList(response.data);
   }
 
   // axiosでデータベースに貸出情報をjson形式で送る
@@ -200,7 +203,32 @@ function App() {
 
     <Button onClick={sendRequestToGetDatabase} variant="contained">sendRequestToGetDatabase</Button>
 
-    
+    {/* lendingListの一覧を表示するテーブルを作成 */}
+    {/* <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>ISBN</TableCell>
+            <TableCell align="right">学籍番号</TableCell>
+            <TableCell align="right">貸出日時</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {lendingList.map((row) => (
+            <TableRow
+              key={row.bookIsbn}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.bookIsbn}
+              </TableCell>
+              <TableCell align="right">{row.studentId}</TableCell>
+              <TableCell align="right">{row.lendingDatetime}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer> */}
     </>
   );
 }
