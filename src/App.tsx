@@ -111,6 +111,7 @@ function App() {
     }
   }, [isbn])
 
+  // TextField に直接 ISBN を入力されたときに呼び出される関数
   const isbnOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
     const _isbn = e.target.value
     setIsbn(_isbn)
