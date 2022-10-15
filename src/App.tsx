@@ -130,6 +130,7 @@ function App() {
                   width: "30em",
                   height: "30em",
                   border: "1px solid black",
+                  maxWidth: "100%",
                 }}
               >
                 <Webcam
@@ -154,7 +155,7 @@ function App() {
                   border: "1px solid black",
                 }}
               >
-                <img src={image} width="100%" height="auto" />
+                <img src={image} style={{ maxWidth: "100%", maxHeight:"100%"}} />
               </Box>
               <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
               <Button onClick={delImage} variant="contained">リトライ</Button>
