@@ -159,6 +159,7 @@ function App() {
                   width: "30em",
                   height: "30em",
                   border: "1px solid black",
+                  maxWidth: "100%",
                 }}
               >
                 <img src={image} style={{ maxWidth: "100%", maxHeight:"100%"}} />
