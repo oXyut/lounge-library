@@ -3,7 +3,7 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 import { createWorker } from 'tesseract.js';
 import styled from 'styled-components';
 import Webcam from 'react-webcam';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography, LinearProgress } from '@mui/material';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse } from "axios";
 import r from "../lib/googleApi.json"
@@ -26,6 +26,8 @@ function App() {
   const [studentNo, setStudentNo] = useState<string>('')
   // カメラが起動しているかどうか
   const [isCamOn, setIsCamOn] = useState<boolean>(false)
+  // OCRの進行状況。プログレスバーで使う。
+  const [ocrProgress, setOcrProgress] = useState<{status: string, progress: number}>({status: 'recognizing text', progress: 1})
   
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
@@ -57,7 +59,10 @@ function App() {
 
   // OCR してくれる労働者を定義
   const worker = createWorker({
-    logger: m => console.log(m),
+    // logger: m => console.log(m),
+    logger: m => {
+      setOcrProgress({status: m.status, progress: m.progress})
+    }
   })
 
   // OCR を実行する関数
@@ -168,6 +173,14 @@ function App() {
           <Button onClick={toggleCam} variant="contained">ISBN をカメラで読み取る</Button>
         </>
       )
+    }
+    { ocrProgress.progress !== 1 && ocrProgress.status !== "recognizing text" &&
+    <Box sx={{ width: '100%' }}>
+      <Typography>
+        {ocrProgress.status}
+      </Typography>
+      <LinearProgress variant="determinate" value={ocrProgress.progress * 100} />
+    </Box>
     }
     <p>{ocr}</p>
 
