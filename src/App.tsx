@@ -10,6 +10,9 @@ import r from "../lib/googleApi.json"
 
 type RES = typeof r
 
+const getDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/getDatabase";
+const postDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/postDatabase";
+
 const Wrapper = styled.div`
   position: absolute;
   width: 100%;
@@ -23,8 +26,12 @@ function App() {
   const [isbn, setIsbn] = useState<string>('')
   const [title, setTitle] = useState<string>('')
   const [authors, setAuthors] = useState<string[]>([''])
-  const [studentNo, setStudentNo] = useState<string>('')
+  const [studentId, setStudentId] = useState<string>('')
   const [isCamOn, setIsCamOn] = useState<boolean>(false)
+
+  const [lendingList, setlendingList] = useState([]) // 本の貸出状況を格納するjsonの配列．今型チェックがうまくいっていない
+  const [isBookExist, setIsBookExist] = useState<boolean>(false) // 入力されたisbnの本が存在するかどうか
+
   const camera = useRef<CameraType>(null);
   const capture = useCallback(
     () => {
@@ -63,33 +70,59 @@ function App() {
     setIsCamOn(!isCamOn)
   }
 
-useEffect(() =>{
-    // console.log(isbn)
-    // console.log(isbn.length)
-    // console.log((isbn.length===9) || (isbn.length===10) || (isbn.length===13))
-    if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){ 
-    const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
-    axios.get(url)
-      .then((res: AxiosResponse<RES>) => {
-      // .then((res: any) => {
-        console.log(res)
-        if(res.data.totalItems > 0){
-          console.log(res.data.items[0].volumeInfo.title)
-          setTitle(res.data.items[0].volumeInfo.title)
-          setAuthors(res.data.items[0].volumeInfo.authors)
-        } else {
-          setTitle("")
-          setAuthors([""])
-        }
-      })
-    } else {
-      return
+  // axiosでデータベースにリクエストを送る
+  const sendRequestToGetDatabase = async () => {
+    const response = await axios.post<RES>(getDatabaseURL, {
+    })
+    console.log(response.data);
+    // setlendingList(response.data);
+  }
+
+  // axiosでデータベースに貸出情報をjson形式で送る
+  const sendRequestToPostDatabase = async () => {
+    const response = await axios.post<RES>(postDatabaseURL, {
+      bookIsbn: isbn,
+      studentId: studentId,
+      lendingDatetime: new Date().toLocaleString(),
+    }).then(() => {
+      setIsbn('')
+      setStudentId('')
     }
-  }, [isbn])
+    )
+  }
+
+  useEffect(() =>{
+      // console.log(isbn)
+      // console.log(isbn.length)
+      // console.log((isbn.length===9) || (isbn.length===10) || (isbn.length===13))
+      if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){ 
+      const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
+      axios.get(url)
+        .then((res: AxiosResponse<RES>) => {
+        // .then((res: any) => {
+          console.log(res)
+          if(res.data.totalItems > 0){
+            console.log(res.data.items[0].volumeInfo.title)
+            setTitle(res.data.items[0].volumeInfo.title)
+            setAuthors(res.data.items[0].volumeInfo.authors)
+          } else {
+            setTitle("")
+            setAuthors([""])
+          }
+        })
+      } else {
+        return
+      }
+    }, [isbn])
 
   const isbnOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
     const _isbn = e.target.value
     setIsbn(_isbn)
+  }
+
+  const studentIdOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
+    const _studentId = e.target.value
+    setStudentId(_studentId)
   }
 
   return (
@@ -144,19 +177,30 @@ useEffect(() =>{
       label="ISBN"
       onChange={isbnOnChangeHandler}
     ></TextField>
+
     <TextField
-      value={studentNo}
+      value={studentId}
       label="学籍番号"
+      onChange={studentIdOnChangeHandler}
     ></TextField>
-    <Button variant="contained">
+
+    <Button
+      variant="contained"
+      onClick={sendRequestToPostDatabase}
+    >
       借りる
     </Button>
+
     <Typography>
       {
         title != "" &&
         authors.join(", ") + "「" + title + "」"
       }
     </Typography>
+
+    <Button onClick={sendRequestToGetDatabase} variant="contained">sendRequestToGetDatabase</Button>
+
+    
     </>
   );
 }
