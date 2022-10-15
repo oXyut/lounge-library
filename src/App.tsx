@@ -61,6 +61,7 @@ function App() {
   const worker = createWorker({
     // logger: m => console.log(m),
     logger: m => {
+      console.log(m)
       setOcrProgress({status: m.status, progress: m.progress})
     }
   })
@@ -174,7 +175,7 @@ function App() {
         </>
       )
     }
-    { ocrProgress.progress !== 1 && ocrProgress.status !== "recognizing text" &&
+    { !(ocrProgress.progress === 1 && ocrProgress.status === "recognizing text") &&
     <Box sx={{ width: '100%' }}>
       <Typography>
         {ocrProgress.status}
