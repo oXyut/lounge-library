@@ -293,7 +293,7 @@ function App() {
       ) : (<></>)
     }
 
-    {/* lendingListの中身を表示するTableの作成 */}
+    {/* lendingListの中身を表示するTableの作成 ほぼGithub copilotが作ったので書いた内容にあまり責任持てないです*/}
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
