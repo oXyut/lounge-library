@@ -9,10 +9,12 @@ import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse } from "axios";
 import r from "../lib/googleApi.json";
 import _typeLendingList from "../lib/typeLendingList.json";
+import _typeLendingListWithBookInfo from "../lib/typeLendingListWithBookInfo.json";
 
 
 type RES = typeof r
 type typeLendingList = typeof _typeLendingList;
+type typeLendingListWithBookInfo = typeof _typeLendingListWithBookInfo;
 
 const getDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/getDatabase";
 const postDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/postDatabase";
@@ -44,6 +46,12 @@ function App() {
   
   // studentIdの値が適切かどうかのフラグ
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
+
+  // どの本を返却するかを選んでいる状態かどうかのフラグ
+  const [isSelectRturnBookMode, setIsSelectReturnBookMode] = useState<boolean>(false)
+
+  // databaseから取得したlendingListに著者やタイトルを追加したもの（未実装）
+  const [lendingListWithBookInfo, setLendingListWithBookInfo] = useState<typeLendingListWithBookInfo[]>([])
 
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
@@ -137,8 +145,8 @@ function App() {
   // Google Books API にリクエストを送り，書籍のタイトルと著者を取得する。
   useEffect(() =>{
     if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){ 
-      const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
-      axios.get(url)
+      const _url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
+      axios.get(_url)
         .then((res: AxiosResponse<RES>) => {
           console.log(res)
           if(res.data.totalItems > 0){
@@ -180,7 +188,8 @@ function App() {
     }
   }, [studentId])
 
-  // データベースにリクエストを送って貸出情報を更新する(isPostingを見てるのは暫定的な処理で，後で変更が必要かも)
+  // データベースにリクエストを送って貸出情報を更新する
+  //(isPostingを見てるのは暫定的な処理で，後で変更が必要かも)
   useEffect(() => {
     sendRequestToGetDatabase()
   }, [isPosting])
@@ -294,6 +303,8 @@ function App() {
     }
 
     {/* lendingListの中身を表示するTableの作成 ほぼGithub copilotが作ったので書いた内容にあまり責任持てないです*/}
+    {
+      lendingList.length !== 0 ? (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
@@ -317,9 +328,10 @@ function App() {
         </TableBody>
       </Table>
     </TableContainer>
-
-
-
+      ):(
+        <Typography>貸出履歴を読込中</Typography>
+      )
+  }
   </>
   );
 }
