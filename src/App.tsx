@@ -7,10 +7,12 @@ import { Box, Button, TextField, Typography, LinearProgress } from '@mui/materia
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse } from "axios";
-import r from "../lib/googleApi.json"
+import r from "../lib/googleApi.json";
+import _typeLendingList from "../lib/typeLendingList.json";
 
 
 type RES = typeof r
+type typeLendingList = typeof _typeLendingList;
 
 const getDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/getDatabase";
 const postDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/postDatabase";
@@ -34,7 +36,7 @@ function App() {
   // OCRの進行状況。プログレスバーで使う。
   const [ocrProgress, setOcrProgress] = useState<{status: string, progress: number}>({status: 'recognizing text', progress: 1})
   // Axios Response Type
-  const [lendingList, setlendingList] = useState<any>()
+  const [lendingList, setlendingList] = useState<typeLendingList[]>([])
   const [isBookExist, setIsBookExist] = useState<boolean>(false) // 入力されたisbnの本が存在するかどうか
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
@@ -108,16 +110,16 @@ function App() {
 
   // axiosでデータベースにリクエストを送る
   const sendRequestToGetDatabase = async () => {
-    const response = await axios.post<RES>(getDatabaseURL, {
+    const response = await axios.post<typeLendingList[]>(getDatabaseURL, {
     })
-    console.log(response.data);
-    setlendingList(response.data);
+    const { data } = response;
+    setlendingList(data);
   }
 
   // axiosでデータベースに貸出情報をjson形式で送る
   const sendRequestToPostDatabase = async () => {
     setIsPosting(true)
-    const response = await axios.post<RES>(postDatabaseURL, {
+    const response = await axios.post<AxiosResponse>(postDatabaseURL, {
       bookIsbn: isbn,
       studentId: studentId,
       lendingDatetime: new Date().toLocaleString(),
@@ -177,6 +179,11 @@ function App() {
       setIsStudentIdValid(false)
     }
   }, [studentId])
+
+  // データベースにリクエストを送って貸出情報を更新する(isPostingを見てるのは暫定的な処理で，後で変更が必要かも)
+  useEffect(() => {
+    sendRequestToGetDatabase()
+  }, [isPosting])
 
   return (
     <>
@@ -286,36 +293,34 @@ function App() {
       ) : (<></>)
     }
 
-
-    <Button onClick={sendRequestToGetDatabase} variant="contained">sendRequestToGetDatabase</Button>
-
-    {/* lendingListの一覧を表示するテーブルを作成 */}
-    {/* <TableContainer component={Paper}>
+    {/* lendingListの中身を表示するTableの作成 */}
+    <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
+            <TableCell>貸出日</TableCell>
+            <TableCell>学籍番号</TableCell>
             <TableCell>ISBN</TableCell>
-            <TableCell align="right">学籍番号</TableCell>
-            <TableCell align="right">貸出日時</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {lendingList.map((row) => (
             <TableRow
-              key={row.bookIsbn}
+              key={row.lendingDatetime}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
-                {row.bookIsbn}
-              </TableCell>
-              <TableCell align="right">{row.studentId}</TableCell>
-              <TableCell align="right">{row.lendingDatetime}</TableCell>
+              <TableCell >{row.lendingDatetime}</TableCell>
+              <TableCell >{row.studentId}</TableCell>
+              <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-    </TableContainer> */}
-    </>
+    </TableContainer>
+
+
+
+  </>
   );
 }
 
