@@ -127,7 +127,7 @@ function App() {
   // axiosでデータベースに貸出情報をjson形式で送る
   const sendRequestToPostDatabase = async () => {
     setIsPosting(true)
-    const response = await axios.post<AxiosResponse>(postDatabaseURL, {
+    const response = await axios.post<typeLendingList>(postDatabaseURL, {
       bookIsbn: isbn,
       studentId: studentId,
       lendingDatetime: new Date().toLocaleString(),
