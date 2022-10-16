@@ -6,7 +6,7 @@ import Webcam from 'react-webcam';
 import { Box, Button, TextField, Typography, LinearProgress } from '@mui/material';
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import { setCommentRange } from 'typescript';
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse, AxiosError } from "axios";
 import r from "../lib/googleApi.json";
 import _typeLendingList from "../lib/typeLendingList.json";
 import _typeLendingListWithBookInfo from "../lib/typeLendingListWithBookInfo.json";
@@ -42,7 +42,7 @@ function App() {
   const [isBookExist, setIsBookExist] = useState<boolean>(false) // 入力されたisbnの本が存在するかどうか
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
-  const [isPosting, setIsPosting] = useState<boolean>(false)
+  const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
   
   // studentIdの値が適切かどうかのフラグ
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
@@ -126,19 +126,21 @@ function App() {
 
   // axiosでデータベースに貸出情報をjson形式で送る
   const sendRequestToPostDatabase = async () => {
-    setIsPosting(true)
-    const response = await axios.post<typeLendingList>(postDatabaseURL, {
+    setIsPostingNow(true)
+    const request = await axios.post<typeLendingList>(postDatabaseURL, {
       bookIsbn: isbn,
       studentId: studentId,
       lendingDatetime: new Date().toLocaleString(),
       isLendingNow: true,
-    }).then(() => {
+    }).then((response: AxiosResponse) => {
       setIsbn('')
       setStudentId('')
-      setIsPosting(false)
+      setIsPostingNow(false)
       setIsBookExist(false)
-    }
-    )
+    }).catch((error: AxiosError) => {
+      console.log(error)
+      setIsPostingNow(false)
+    })
   }
 
   // isbn が更新されたときに呼び出される関数
@@ -189,10 +191,10 @@ function App() {
   }, [studentId])
 
   // データベースにリクエストを送って貸出情報を更新する
-  //(isPostingを見てるのは暫定的な処理で，後で変更が必要かも)
+  //(isPostingNowを見てるのは暫定的な処理で，後で変更が必要かも)
   useEffect(() => {
     sendRequestToGetDatabase()
-  }, [isPosting])
+  }, [isPostingNow])
 
   return (
     <>
@@ -278,13 +280,13 @@ function App() {
     <Button
       variant="contained"
       onClick={sendRequestToPostDatabase}
-      disabled={isPosting || !isBookExist || !isStudentIdValid}
+      disabled={isPostingNow || !isBookExist || !isStudentIdValid}
     >
       借りる
     </Button>
 
     {
-      isPosting ? (
+      isPostingNow ? (
         <LinearProgress />
       ): (
         <></>
