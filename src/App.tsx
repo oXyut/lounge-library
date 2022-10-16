@@ -121,10 +121,12 @@ function App() {
       bookIsbn: isbn,
       studentId: studentId,
       lendingDatetime: new Date().toLocaleString(),
+      isLendingNow: true,
     }).then(() => {
       setIsbn('')
       setStudentId('')
       setIsPosting(false)
+      setIsBookExist(false)
     }
     )
   }
