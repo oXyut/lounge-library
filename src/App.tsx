@@ -7,10 +7,12 @@ import { Box, Button, TextField, Typography, LinearProgress } from '@mui/materia
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse, AxiosError } from "axios";
+
 import r from "../lib/googleApi.json";
 import _typeLendingList from "../lib/typeLendingList.json";
 import _typeLendingListWithBookInfo from "../lib/typeLendingListWithBookInfo.json";
 
+import SortingAndSelectingTable from "./components/SortingAndSelectingTable";
 
 type RES = typeof r
 type typeLendingList = typeof _typeLendingList;
@@ -48,10 +50,13 @@ function App() {
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
 
   // どの本を返却するかを選んでいる状態かどうかのフラグ
-  const [isSelectRturnBookMode, setIsSelectReturnBookMode] = useState<boolean>(false)
+  const [isSelectReturnBookMode, setIsSelectReturnBookMode] = useState<boolean>(false)
 
   // databaseから取得したlendingListに著者やタイトルを追加したもの（未実装）
   const [lendingListWithBookInfo, setLendingListWithBookInfo] = useState<typeLendingListWithBookInfo[]>([])
+
+  // sendRequestToPostDatabase関数のエラーを収納するuseState
+  const [errorSendRequestToPostDatabase, setErrorSendRequestToPostDatabase] = useState<string>("")
 
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
@@ -133,12 +138,15 @@ function App() {
       lendingDatetime: new Date().toLocaleString(),
       isLendingNow: true,
     }).then((response: AxiosResponse) => {
+      console.log(response)
       setIsbn('')
       setStudentId('')
       setIsPostingNow(false)
       setIsBookExist(false)
+      setErrorSendRequestToPostDatabase("")
     }).catch((error: AxiosError) => {
       console.log(error)
+      setErrorSendRequestToPostDatabase(error.request.response)
       setIsPostingNow(false)
     })
   }
@@ -177,6 +185,10 @@ function App() {
   const studentIdOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
     const _studentId = e.target.value
     setStudentId(_studentId)
+  }
+
+  const toggleIsSelectReturnBookMode = () =>{
+    setIsSelectReturnBookMode(!isSelectReturnBookMode);
   }
 
   // studentIdが適切かどうかを監視するuseEffect
@@ -294,6 +306,14 @@ function App() {
     }
 
     {
+      (errorSendRequestToPostDatabase !== "") ?(
+        <Typography color="error">{errorSendRequestToPostDatabase}</Typography>
+      ):(
+        <></>
+      )
+    }
+
+    {
       isBookExist ? (
       <Typography>
         {
@@ -307,31 +327,67 @@ function App() {
     {/* lendingListの中身を表示するTableの作成 ほぼGithub copilotが作ったので書いた内容にあまり責任持てないです*/}
     {
       lendingList.length !== 0 ? (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>貸出日</TableCell>
-            <TableCell>学籍番号</TableCell>
-            <TableCell>ISBN</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {lendingList.map((row) => (
-            <TableRow
-              key={row.lendingDatetime}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell >{row.lendingDatetime}</TableCell>
-              <TableCell >{row.studentId}</TableCell>
-              <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-      ):(
+        isSelectReturnBookMode ? (
+          <>
+          <Typography>返却する本を選択してください</Typography>
+          <SortingAndSelectingTable/>
+          {/* <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>貸出日</TableCell>
+                <TableCell>学籍番号</TableCell>
+                <TableCell>ISBN</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {lendingList.map((row) => (
+                <TableRow
+                  key={row.lendingDatetime}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell >{row.lendingDatetime}</TableCell>
+                  <TableCell >{row.studentId}</TableCell>
+                  <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          </TableContainer> */}
+          <Button onClick={toggleIsSelectReturnBookMode} variant="contained">返却をキャンセル</Button>
+          </>
+        ):(
+          <>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>貸出日</TableCell>
+                  <TableCell>学籍番号</TableCell>
+                  <TableCell>ISBN</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {lendingList.map((row) => (
+                  <TableRow
+                  key={row.lendingDatetime}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell >{row.lendingDatetime}</TableCell>
+                    <TableCell >{row.studentId}</TableCell>
+                    <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Button onClick={toggleIsSelectReturnBookMode} variant="contained">返却する本を選択する</Button>
+          </>
+      )):(
+        <>
         <Typography>貸出履歴を読込中</Typography>
+        <LinearProgress/>
+        </>
       )
   }
   </>
