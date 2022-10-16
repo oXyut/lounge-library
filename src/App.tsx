@@ -36,7 +36,13 @@ function App() {
   // Axios Response Type
   const [lendingList, setlendingList] = useState<any>()
   const [isBookExist, setIsBookExist] = useState<boolean>(false) // 入力されたisbnの本が存在するかどうか
+
+  // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
+  const [isPosting, setIsPosting] = useState<boolean>(false)
   
+  // studentIdの値が適切かどうかのフラグ
+  const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
+
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
 
@@ -71,6 +77,8 @@ function App() {
       setOcrProgress({status: m.status, progress: m.progress})
     }
   })
+
+
 
   // OCR を実行する関数
   const doOCR = async (img: string) => {
@@ -108,6 +116,7 @@ function App() {
 
   // axiosでデータベースに貸出情報をjson形式で送る
   const sendRequestToPostDatabase = async () => {
+    setIsPosting(true)
     const response = await axios.post<RES>(postDatabaseURL, {
       bookIsbn: isbn,
       studentId: studentId,
@@ -115,6 +124,7 @@ function App() {
     }).then(() => {
       setIsbn('')
       setStudentId('')
+      setIsPosting(false)
     }
     )
   }
@@ -131,9 +141,11 @@ function App() {
             console.log(res.data.items[0].volumeInfo.title)
             setTitle(res.data.items[0].volumeInfo.title)
             setAuthors(res.data.items[0].volumeInfo.authors)
+            setIsBookExist(true)
           } else {
             setTitle("")
             setAuthors([""])
+            setIsBookExist(false)
           }
         })
     } else {
@@ -147,13 +159,26 @@ function App() {
     setIsbn(_isbn)
   }
 
+  // TextField に studentId を入力されたときに呼び出される関数
   const studentIdOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
     const _studentId = e.target.value
     setStudentId(_studentId)
   }
 
+  // studentIdが適切かどうかを監視するuseEffect
+  useEffect(() => {
+    const _isStudentUndergraduate = studentId.match(/^[0-9]{2}[a-z]{1}[0-9]{4}[a-z]{1}$/)
+    const _isStudentGraduate = studentId.match(/^[0-9]{2}[a-z]{2}[0-9]{3}[a-z]{1}$/)
+    if(_isStudentUndergraduate || _isStudentGraduate){
+      setIsStudentIdValid(true)
+    } else {
+      setIsStudentIdValid(false)
+    }
+  }, [studentId])
+
   return (
     <>
+    <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography>
     {
       isCamOn ? (
         <>
@@ -215,31 +240,50 @@ function App() {
     }
     <p>{ocr}</p>
 
+    <Typography><p>ISBNは半角数字（ハイフンなし）で入力してください 例 : 9784150110000</p></Typography>
+    <Typography><p>学籍番号は半角英数字，小文字で入力してください 例 : 22s2099x</p></Typography>
+    
     <TextField
       value={isbn}
       label="ISBN"
       onChange={isbnOnChangeHandler}
+      error={isbn.length !== 0 && !isBookExist}
     ></TextField>
 
     <TextField
       value={studentId}
       label="学籍番号"
       onChange={studentIdOnChangeHandler}
+      error={studentId.length !== 0 && !isStudentIdValid}
     ></TextField>
 
     <Button
       variant="contained"
       onClick={sendRequestToPostDatabase}
+      disabled={isPosting || !isBookExist || !isStudentIdValid}
     >
       借りる
     </Button>
 
-    <Typography>
-      {
-        title != "" &&
-        authors.join(", ") + "「" + title + "」"
-      }
-    </Typography>
+    {
+      isPosting ? (
+        <LinearProgress />
+      ): (
+        <></>
+      )
+    }
+
+    {
+      isBookExist ? (
+      <Typography>
+        {
+          title != "" &&
+          authors + "「" + title + "」"
+        }
+      </Typography>
+      ) : (<></>)
+    }
+
 
     <Button onClick={sendRequestToGetDatabase} variant="contained">sendRequestToGetDatabase</Button>
 
