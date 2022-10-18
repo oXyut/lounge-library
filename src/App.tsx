@@ -3,8 +3,12 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 import { createWorker } from 'tesseract.js';
 import styled from 'styled-components';
 import Webcam from 'react-webcam';
-import { Box, Button, TextField, Typography, LinearProgress } from '@mui/material';
-import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import { Box, Button, TextField, Typography, LinearProgress, Tab, Tabs, Stack } from '@mui/material';
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import NoPhotographyOutlinedIcon from '@mui/icons-material/NoPhotographyOutlined';
+import { red } from '@mui/material/colors';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse, AxiosError } from "axios";
 
@@ -13,6 +17,7 @@ import _typeLendingList from "../lib/typeLendingList.json";
 import _typeLendingListWithBookInfo from "../lib/typeLendingListWithBookInfo.json";
 
 import SortingAndSelectingTable from "./components/SortingAndSelectingTable";
+import { Container } from '@mui/system';
 
 type RES = typeof r
 type typeLendingList = typeof _typeLendingList;
@@ -57,6 +62,9 @@ function App() {
 
   // sendRequestToPostDatabase関数のエラーを収納するuseState
   const [errorSendRequestToPostDatabase, setErrorSendRequestToPostDatabase] = useState<string>("")
+
+  // tabの状態を管理するuseState
+  const [tabValue, setTabValue] = useState<number>(0)
 
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
@@ -187,10 +195,6 @@ function App() {
     setStudentId(_studentId)
   }
 
-  const toggleIsSelectReturnBookMode = () =>{
-    setIsSelectReturnBookMode(!isSelectReturnBookMode);
-  }
-
   // studentIdが適切かどうかを監視するuseEffect
   useEffect(() => {
     const _isStudentUndergraduate = studentId.match(/^[0-9]{2}[a-z]{1}[0-9]{4}[a-z]{1}$/)
@@ -208,157 +212,220 @@ function App() {
     sendRequestToGetDatabase()
   }, [isPostingNow])
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const returnBook = (id: string) => {
+    console.log(id)
+  }
   return (
     <>
+    <Container>
     <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography>
-    {
-      isCamOn ? (
-        <>
-        {
-          image == null ? (
-            <>
-              <Box
-                sx={{
-                  width: "30em",
-                  height: "30em",
-                  border: "1px solid black",
-                  maxWidth: "100%",
-                }}
-              >
-                <Webcam
-                  audio={false}
-                  ref={webcamRef}
-                  forceScreenshotSourceSize
-                  screenshotFormat="image/jpeg"
-                  width="100%"
-                  height="100%"
-                  videoConstraints={videoConstraints}
-                />
-              </Box>
-              <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
-              <Button onClick={capture} variant="contained">文字を読み取る</Button>
-            </>
-          ) : (
-            <>
-              <Box
-                sx={{
-                  width: "30em",
-                  height: "30em",
-                  border: "1px solid black",
-                  maxWidth: "100%",
-                }}
-              >
-                <img src={image} style={{ maxWidth: "100%", maxHeight:"100%"}} />
-              </Box>
-              <Button onClick={toggleCam} variant="contained">カメラをきる</Button>
-              <Button onClick={delImage} variant="contained">リトライ</Button>
-            </>
-          )
-        }
-        </>
-      ) : (
-        <>
-          <Button onClick={toggleCam} variant="contained">ISBN をカメラで読み取る</Button>
-        </>
-      )
-    }
-    { !(ocrProgress.progress === 1 && ocrProgress.status === "recognizing text") &&
-    <Box sx={{ width: '100%' }}>
-      <Typography>
-        {ocrProgress.status}
-      </Typography>
-      <LinearProgress variant="determinate" value={ocrProgress.progress * 100} />
-    </Box>
-    }
-    <p>{ocr}</p>
-
-    <Typography><p>ISBNは半角数字（ハイフンなし）で入力してください 例 : 9784150110000</p></Typography>
-    <Typography><p>学籍番号は半角英数字，小文字で入力してください 例 : 22s2099x</p></Typography>
-    
-    <TextField
-      value={isbn}
-      label="ISBN"
-      onChange={isbnOnChangeHandler}
-      error={isbn.length !== 0 && !isBookExist}
-    ></TextField>
-
-    <TextField
-      value={studentId}
-      label="学籍番号"
-      onChange={studentIdOnChangeHandler}
-      error={studentId.length !== 0 && !isStudentIdValid}
-    ></TextField>
-
-    <Button
-      variant="contained"
-      onClick={sendRequestToPostDatabase}
-      disabled={isPostingNow || !isBookExist || !isStudentIdValid}
+    <Stack spacing={2}>
+    <Paper
+    elevation={3}
     >
-      借りる
-    </Button>
-
-    {
-      isPostingNow ? (
-        <LinearProgress />
-      ): (
-        <></>
-      )
-    }
-
-    {
-      (errorSendRequestToPostDatabase !== "") ?(
-        <Typography color="error">{errorSendRequestToPostDatabase}</Typography>
-      ):(
-        <></>
-      )
-    }
-
-    {
-      isBookExist ? (
-      <Typography>
-        {
-          title != "" &&
-          authors + "「" + title + "」"
-        }
-      </Typography>
-      ) : (<></>)
-    }
-
-    {/* lendingListの中身を表示するTableの作成 ほぼGithub copilotが作ったので書いた内容にあまり責任持てないです*/}
-    {
-      lendingList.length !== 0 ? (
-        isSelectReturnBookMode ? (
+    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        variant="fullWidth"
+      >
+        <Tab label="貸出" {...{id: "tab-rent"}}/>
+        <Tab label="返却" {...{id: "tab-return"}}/>
+      </Tabs>
+    </Box>
+    <Box
+      sx={{
+        p: 3,
+      }}
+    >
+    {tabValue === 0 &&
+      <>
+      {
+        isCamOn ? (
           <>
-          <Typography>返却する本を選択してください</Typography>
-          <SortingAndSelectingTable/>
-          {/* <TableContainer component={Paper}>
+          {
+            image == null ? (
+              <>
+                <Box
+                  sx={{
+                    width: "30em",
+                    height: "30em",
+                    border: "1px solid black",
+                    maxWidth: "100%",
+                  }}
+                >
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    forceScreenshotSourceSize
+                    screenshotFormat="image/jpeg"
+                    width="100%"
+                    height="100%"
+                    videoConstraints={videoConstraints}
+                  />
+                </Box>
+                <Stack spacing={2} direction="row">
+                  <Button onClick={capture} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />文字を読み取る</Button>
+                  <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
+                </Stack>
+              </>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    width: "30em",
+                    height: "30em",
+                    border: "1px solid black",
+                    maxWidth: "100%",
+                  }}
+                >
+                  <img src={image} style={{ maxWidth: "100%", maxHeight:"100%"}} />
+                </Box>
+                <Stack spacing={2} direction="row">
+                  <Button onClick={delImage} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />リトライ</Button>
+                  <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
+                </Stack>
+              </>
+            )
+          }
+          </>
+        ) : (
+          <>
+            <Button onClick={toggleCam} variant="contained">
+              <PhotoCameraIcon sx={{ mr: 1 }} />
+              ISBN をカメラで読み取る
+            </Button>
+          </>
+        )
+      }
+      { !(ocrProgress.progress === 1 && ocrProgress.status === "recognizing text") &&
+      <Box sx={{ width: '100%' }}>
+        <Typography>
+          {ocrProgress.status}
+        </Typography>
+        <LinearProgress variant="determinate" value={ocrProgress.progress * 100} />
+      </Box>
+      }
+      {/* <p>{ocr}</p> */}
+      <Box sx={{ height:20}} />
+      <Typography>ISBNは半角数字（ハイフンなし）で入力してください 例 : 9784150110000</Typography>
+      <Typography>学籍番号は半角英数字，小文字で入力してください 例 : 22s2099x</Typography>
+      <Box sx={{ height:20}} />
+      
+      <Stack spacing={2} direction="column">
+          <TextField
+            value={isbn}
+            label="ISBN"
+            onChange={isbnOnChangeHandler}
+            error={isbn.length !== 0 && !isBookExist}
+          ></TextField>
+      
+        <TextField
+          value={studentId}
+          label="学籍番号"
+          onChange={studentIdOnChangeHandler}
+          error={studentId.length !== 0 && !isStudentIdValid}
+        ></TextField>
+        {
+          isBookExist ? (
+          <Typography>
+            {
+              title != "" &&
+              authors + "「" + title + "」"
+            }
+          </Typography>
+          ) : (<></>)
+        }
+        <Button
+          variant="contained"
+          onClick={sendRequestToPostDatabase}
+          disabled={isPostingNow || !isBookExist || !isStudentIdValid}
+        >
+          借りる
+        </Button>
+      </Stack>
+
+      {
+        isPostingNow ? (
+          <LinearProgress />
+        ): (
+          <></>
+        )
+      }
+
+      {
+        (errorSendRequestToPostDatabase !== "") ?(
+          <Typography color="error">{errorSendRequestToPostDatabase}</Typography>
+        ):(
+          <></>
+        )
+      }
+
+
+      </>
+    }
+    {tabValue === 1 &&
+      <>
+        <TextField
+          value={studentId}
+          label="学籍番号"
+          onChange={studentIdOnChangeHandler}
+          error={studentId.length !== 0 && !isStudentIdValid}
+        ></TextField>
+        <TableContainer>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell>貸出日</TableCell>
                 <TableCell>学籍番号</TableCell>
                 <TableCell>ISBN</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {lendingList.map((row) => (
-                <TableRow
+                <>
+                { row.studentId === studentId &&
+                  <TableRow
                   key={row.lendingDatetime}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell >{row.lendingDatetime}</TableCell>
-                  <TableCell >{row.studentId}</TableCell>
-                  <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
-                </TableRow>
+                  >
+                    <TableCell >{row.lendingDatetime}</TableCell>
+                    <TableCell >{row.studentId}</TableCell>
+                    <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={ ()=>returnBook(row.bookIsbn) }>
+                        <DeleteIcon sx={{ color: red.A700 }}/>
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                }
+                </>
               ))}
             </TableBody>
           </Table>
-          </TableContainer> */}
-          <Button onClick={toggleIsSelectReturnBookMode} variant="contained">返却をキャンセル</Button>
-          </>
-        ):(
+        </TableContainer>
+      </>
+    }
+    </Box>
+    </Paper>
+
+    <Paper
+      elevation={3}
+      sx={{
+        p: 3,
+      }}
+    >
+    <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>貸出状況</Typography>
+    {/* lendingListの中身を表示するTableの作成 ほぼGithub copilotが作ったので書いた内容にあまり責任持てないです*/}
+    {
+      lendingList.length !== 0 ? (
           <>
-          <TableContainer component={Paper}>
+          <TableContainer>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
@@ -381,15 +448,17 @@ function App() {
               </TableBody>
             </Table>
           </TableContainer>
-          <Button onClick={toggleIsSelectReturnBookMode} variant="contained">返却する本を選択する</Button>
           </>
-      )):(
+      ):(
         <>
         <Typography>貸出履歴を読込中</Typography>
         <LinearProgress/>
         </>
       )
   }
+  </Paper>
+  </Stack>
+  </Container>
   </>
   );
 }
