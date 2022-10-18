@@ -5,9 +5,12 @@ import styled from 'styled-components';
 import Webcam from 'react-webcam';
 import { Box, Button, TextField, Typography, LinearProgress, Tab, Tabs, Stack } from '@mui/material';
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import NoPhotographyOutlinedIcon from '@mui/icons-material/NoPhotographyOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { red } from '@mui/material/colors';
 import { setCommentRange } from 'typescript';
 import axios, { AxiosResponse, AxiosError } from "axios";
@@ -17,6 +20,7 @@ import _typeLendingList from "../lib/typeLendingList.json";
 
 import SortingAndSelectingTable from "./components/SortingAndSelectingTable";
 import { Container } from '@mui/system';
+import { Rowing } from '@mui/icons-material';
 
 type RES = typeof r
 type typeLendingList = typeof _typeLendingList;
@@ -231,8 +235,8 @@ function App() {
         onChange={handleTabChange}
         variant="fullWidth"
       >
-        <Tab label="貸出" {...{id: "tab-rent"}}/>
-        <Tab label="返却" {...{id: "tab-return"}}/>
+        <Tab label={<Typography variant='h6'>貸出</Typography>} {...{id: "tab-rent"}}/>
+        <Tab label={<Typography variant='h6'>返却</Typography>} {...{id: "tab-return"}}/>
       </Tabs>
     </Box>
     <Box
@@ -251,9 +255,9 @@ function App() {
                 <Box
                   sx={{
                     width: "30em",
-                    height: "30em",
-                    border: "1px solid black",
                     maxWidth: "100%",
+                    maxHeight: "100%",
+                    mx: "auto",
                   }}
                 >
                   <Webcam
@@ -262,41 +266,60 @@ function App() {
                     forceScreenshotSourceSize
                     screenshotFormat="image/jpeg"
                     width="100%"
-                    height="100%"
                     videoConstraints={videoConstraints}
                   />
                 </Box>
-                <Stack spacing={2} direction="row">
-                  <Button onClick={capture} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />文字を読み取る</Button>
-                  <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
-                </Stack>
+                <Box sx={{height:5}}/>
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Stack spacing={2} direction="row">
+                    <Button onClick={capture} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />文字を読み取る</Button>
+                    <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
+                  </Stack>
+                </Box>
               </>
             ) : (
               <>
                 <Box
                   sx={{
                     width: "30em",
-                    height: "30em",
-                    border: "1px solid black",
                     maxWidth: "100%",
+                    maxHeight: "100%",
+                    mx: "auto",
                   }}
                 >
-                  <img src={image} style={{ maxWidth: "100%", maxHeight:"100%"}} />
+                  <img src={image} style={{ maxWidth: "100%", maxHeight:"100%" }} />
                 </Box>
-                <Stack spacing={2} direction="row">
-                  <Button onClick={delImage} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />リトライ</Button>
-                  <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
-                </Stack>
+                <Box sx={{height:5}}/>
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Stack spacing={2} direction="row">
+                    <Button onClick={delImage} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />リトライ</Button>
+                    <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
+                  </Stack>
+                </Box>
               </>
             )
           }
           </>
         ) : (
           <>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
             <Button onClick={toggleCam} variant="contained">
               <PhotoCameraIcon sx={{ mr: 1 }} />
               ISBN をカメラで読み取る
             </Button>
+          </Box>
           </>
         )
       }
@@ -308,7 +331,24 @@ function App() {
         <LinearProgress variant="determinate" value={ocrProgress.progress * 100} />
       </Box>
       }
-      {/* <p>{ocr}</p> */}
+      { ocr != "" &&
+        <Accordion
+          sx={{ my: 2, backgroundColor: "#f0f0f0" }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography>読み取られた文字を表示</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>
+              {ocr}
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
+      }
       <Box sx={{ height:20}} />
       <Typography>ISBNは半角数字（ハイフンなし）で入力してください 例 : 9784150110000</Typography>
       <Typography>学籍番号は半角英数字，小文字で入力してください 例 : 22s2099x</Typography>
@@ -374,42 +414,44 @@ function App() {
           onChange={studentIdOnChangeHandler}
           error={studentId.length !== 0 && !isStudentIdValid}
         ></TextField>
-        <TableContainer>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>貸出日</TableCell>
-                <TableCell>学籍番号</TableCell>
-                <TableCell>ISBN</TableCell>
-                <TableCell>著者</TableCell>
-                <TableCell>タイトル</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {lendingList.map((row) => (
-                <>
-                { row.studentId === studentId &&
-                  <TableRow
-                  key={row.lendingDatetime}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell >{row.lendingDatetime}</TableCell>
-                    <TableCell >{row.studentId}</TableCell>
-                    <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
-                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
-                    <TableCell >{row.bookTitle}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={ ()=>returnBook(row.bookIsbn) }>
-                        <DeleteIcon sx={{ color: red.A700 }}/>
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                }
-                </>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        { isStudentIdValid && lendingList.filter((lending) => lending.studentId === studentId).length > 0 &&
+          <TableContainer>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>貸出日</TableCell>
+                  <TableCell>学籍番号</TableCell>
+                  <TableCell>ISBN</TableCell>
+                  <TableCell>著者</TableCell>
+                  <TableCell>タイトル</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {lendingList.map((row) => (
+                  <>
+                  { row.studentId === studentId &&
+                    <TableRow
+                    key={row.lendingDatetime + "-" + row.studentId}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell >{row.lendingDatetime}</TableCell>
+                      <TableCell >{row.studentId}</TableCell>
+                      <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
+                      <TableCell >{row.bookAuthors.join(", ")}</TableCell>
+                      <TableCell >{row.bookTitle}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={ ()=>returnBook(row.bookIsbn) }>
+                          <DeleteIcon sx={{ color: red.A700 }}/>
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  }
+                  </>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        }
       </>
     }
     </Box>
