@@ -14,17 +14,16 @@ import axios, { AxiosResponse, AxiosError } from "axios";
 
 import r from "../lib/googleApi.json";
 import _typeLendingList from "../lib/typeLendingList.json";
-import _typeLendingListWithBookInfo from "../lib/typeLendingListWithBookInfo.json";
 
 import SortingAndSelectingTable from "./components/SortingAndSelectingTable";
 import { Container } from '@mui/system';
 
 type RES = typeof r
 type typeLendingList = typeof _typeLendingList;
-type typeLendingListWithBookInfo = typeof _typeLendingListWithBookInfo;
 
 const getDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/getDatabase";
 const postDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/postDatabase";
+
 
 function App() {
   // useState の定義一覧。
@@ -56,9 +55,6 @@ function App() {
 
   // どの本を返却するかを選んでいる状態かどうかのフラグ
   const [isSelectReturnBookMode, setIsSelectReturnBookMode] = useState<boolean>(false)
-
-  // databaseから取得したlendingListに著者やタイトルを追加したもの（未実装）
-  const [lendingListWithBookInfo, setLendingListWithBookInfo] = useState<typeLendingListWithBookInfo[]>([])
 
   // sendRequestToPostDatabase関数のエラーを収納するuseState
   const [errorSendRequestToPostDatabase, setErrorSendRequestToPostDatabase] = useState<string>("")
@@ -142,6 +138,8 @@ function App() {
     setIsPostingNow(true)
     const request = await axios.post<typeLendingList>(postDatabaseURL, {
       bookIsbn: isbn,
+      bookAuthors: authors,
+      bookTitle: title,
       studentId: studentId,
       lendingDatetime: new Date().toLocaleString(),
       isLendingNow: true,
@@ -383,7 +381,8 @@ function App() {
                 <TableCell>貸出日</TableCell>
                 <TableCell>学籍番号</TableCell>
                 <TableCell>ISBN</TableCell>
-                <TableCell></TableCell>
+                <TableCell>著者</TableCell>
+                <TableCell>タイトル</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -397,6 +396,8 @@ function App() {
                     <TableCell >{row.lendingDatetime}</TableCell>
                     <TableCell >{row.studentId}</TableCell>
                     <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
+                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
+                    <TableCell >{row.bookTitle}</TableCell>
                     <TableCell>
                       <IconButton onClick={ ()=>returnBook(row.bookIsbn) }>
                         <DeleteIcon sx={{ color: red.A700 }}/>
@@ -432,6 +433,8 @@ function App() {
                   <TableCell>貸出日</TableCell>
                   <TableCell>学籍番号</TableCell>
                   <TableCell>ISBN</TableCell>
+                  <TableCell>著者</TableCell>
+                  <TableCell>タイトル</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -443,6 +446,8 @@ function App() {
                     <TableCell >{row.lendingDatetime}</TableCell>
                     <TableCell >{row.studentId}</TableCell>
                     <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
+                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
+                    <TableCell >{row.bookTitle}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
