@@ -127,7 +127,7 @@ function App() {
 
   // axiosでデータベースにリクエストを送る
   const sendRequestToGetDatabase = async () => {
-    const response = await axios.post<typeLendingList[]>(getDatabaseURL, {
+    const response = await axios.get<typeLendingList[]>(getDatabaseURL, {
     })
     const { data } = response;
     setlendingList(data);
