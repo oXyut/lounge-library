@@ -19,22 +19,22 @@ export default function ShowLendingList () {
                 <TableRow>
                   <TableCell>貸出日</TableCell>
                   <TableCell>学籍番号</TableCell>
-                  <TableCell>ISBN</TableCell>
-                  <TableCell>著者</TableCell>
+                  {/* <TableCell>ISBN</TableCell> */}
                   <TableCell>タイトル</TableCell>
+                  <TableCell>著者</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {lendingList.map((row) => (
+                {lendingList.filter(row => row.isLendingNow === true).map((row) => (
                   <TableRow
                   key={row.lendingDatetime}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
                     <TableCell >{row.lendingDatetime}</TableCell>
                     <TableCell >{row.studentId}</TableCell>
-                    <TableCell component="th" scope="row">{row.bookIsbn}</TableCell>
-                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
+                    {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}
                     <TableCell >{row.bookTitle}</TableCell>
+                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

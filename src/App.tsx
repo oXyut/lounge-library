@@ -15,6 +15,7 @@ type typeLendingList = typeof _typeLendingList;
 
 const getDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/getDatabase";
 
+
 export const StudentIdContext = createContext({} as {
   studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>, isStudentIdValid: boolean, studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
 });
