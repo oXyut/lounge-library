@@ -5,6 +5,7 @@ import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 import axios from "axios";
 
 import _typeLendingList from "../lib/typeLendingList.json";
+import firebaseURL from "./firebaseURL.json"
 
 import LendForm from "./components/LendForm";
 import ReturnForm from "./components/ReturnForm";
@@ -13,7 +14,7 @@ import ShowLendingList from './components/ShowLendingList';
 
 type typeLendingList = typeof _typeLendingList;
 
-const getDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/getDatabase";
+const getDatabaseURL = firebaseURL.root + "/getDatabase";
 
 
 export const StudentIdContext = createContext({} as {

@@ -5,11 +5,12 @@ import { LinearProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { red } from '@mui/material/colors';
 import _typeLendingList from '../../lib/typeLendingList.json';
+import firebaseURL from '../firebaseURL.json';
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { StudentIdContext, LendingListContext, IsPostingNowContext } from '../App';
 
 type typeLendingList = typeof _typeLendingList;
-const makeIsLendingNowFalseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/makeIsLendingNowFalse";
+const makeIsLendingNowFalseURL = firebaseURL.root + "/makeIsLendingNowFalse";
 
 
 export default function RetrunForm () {

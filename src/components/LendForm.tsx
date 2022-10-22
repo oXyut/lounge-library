@@ -12,11 +12,12 @@ import { StudentIdContext, IsPostingNowContext } from '../App';
 
 import r from "../../lib/googleApi.json";
 import _typeLendingList from "../../lib/typeLendingList.json";
+import firebaseURL from "../firebaseURL.json"
 
 type RES = typeof r
 type typeLendingList = typeof _typeLendingList;
 
-const postDatabaseURL = "https://asia-northeast1-lounge-library.cloudfunctions.net/postDatabase";
+const postDatabaseURL = firebaseURL.root + "/postDatabase";
 
 export default function LendForm() {
   // 撮られた画像
