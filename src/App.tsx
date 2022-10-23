@@ -1,18 +1,28 @@
 import './App.css';
 import { useState, useEffect, createContext } from 'react';
-import { Box, Typography, LinearProgress, Tab, Tabs, Stack, Container } from '@mui/material';
+import { Button, Box, Typography, LinearProgress, Tab, Tabs, Stack, Container } from '@mui/material';
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material';
-import axios from "axios";
-
-import _typeLendingList from "../lib/typeLendingList.json";
+import ReplayIcon from '@mui/icons-material/Replay';
+import axios, {AxiosResponse} from "axios";
+import {Timestamp} from "firebase/firestore";
 import firebaseURL from "./firebaseURL.json"
 
 import LendForm from "./components/LendForm";
 import ReturnForm from "./components/ReturnForm";
 import ShowLendingList from './components/ShowLendingList';
 
+type typeLendingList = {
+  id : string,
+  data: {
+  lendingDatetime: {_seconds: number, _nanoseconds: number},
+  isLendingNow: boolean,
+  bookIsbn: string,
+  bookAuthors: string[],
+  bookTitle: string,
+  studentId: string,
+  }
+}
 
-type typeLendingList = typeof _typeLendingList;
 
 const getDatabaseURL = firebaseURL.root + "/getDatabase";
 
@@ -48,7 +58,16 @@ function App() {
     const response = await axios.get<typeLendingList[]>(getDatabaseURL, {
     })
     const { data } = response;
+    // dataをdata.data.lendingDatetimeをキーとして降順でソートする
+    data.sort((a, b) => {
+      if (a.data.lendingDatetime._seconds > b.data.lendingDatetime._seconds) {
+        return -1;
+      } else {
+        return 1;
+      }
+    })
     setLendingList(data);
+    console.log(lendingList)
   }
 
   // TextField に studentId を入力されたときに呼び出される関数
@@ -105,7 +124,7 @@ function App() {
       >
         <StudentIdContext.Provider value={{studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler}}>
           <IsPostingNowContext.Provider value={{isPostingNow, setIsPostingNow}}>
-            
+
             {tabValue === 0 &&
               <LendForm />
             }
@@ -124,6 +143,10 @@ function App() {
       }}
     >
     <ShowLendingList />
+    <Button onClick={sendRequestToGetDatabase}>
+      <ReplayIcon sx={{ mr: 1 }} />
+      更新する
+    </Button>
   </Paper>
   </Stack>
   </Container>

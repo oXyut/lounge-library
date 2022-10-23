@@ -11,11 +11,12 @@ import axios, { AxiosResponse, AxiosError } from "axios";
 import { StudentIdContext, IsPostingNowContext } from '../App';
 
 import r from "../../lib/googleApi.json";
-import _typeLendingList from "../../lib/typeLendingList.json";
 import firebaseURL from "../firebaseURL.json"
 
+import _typePostLendingList from "../../lib/typePostLendingList.json";
+
 type RES = typeof r
-type typeLendingList = typeof _typeLendingList;
+type typePostLendingList = typeof _typePostLendingList
 
 const postDatabaseURL = firebaseURL.root + "/postDatabase";
 
@@ -131,12 +132,11 @@ export default function LendForm() {
   // axiosでデータベースに貸出情報をjson形式で送る
   const sendRequestToPostDatabase = async () => {
     setIsPostingNow(true)
-    const request = await axios.post<typeLendingList>(postDatabaseURL, {
+    const request = await axios.post<typePostLendingList>(postDatabaseURL, {
       bookIsbn: isbn,
       bookAuthors: authors,
       bookTitle: title,
       studentId: studentId,
-      lendingDatetime: new Date().toLocaleString(),
       isLendingNow: true,
     }).then((response: AxiosResponse) => {
       console.log(response)
