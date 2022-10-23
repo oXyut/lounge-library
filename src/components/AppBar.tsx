@@ -14,7 +14,7 @@ export default function ButtonAppBar() {
     <Box sx={{ flexGrow: 1, paddingTop:1, paddingBottom:1}}>
       <AppBar position="static">
         <Toolbar>
-            <Typography variant="h5" component="h1">リフレッシュラウンジ6F書籍貸出管理システム</Typography>
+            <Typography variant="h5" component="h1">ラウンジ6F貸出管理システム</Typography>
         </Toolbar>
       </AppBar>
     </Box>
