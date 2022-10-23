@@ -3,6 +3,7 @@ import { useState, useEffect, createContext } from 'react';
 import { Button, Box, Typography, LinearProgress, Tab, Tabs, Stack, Container } from '@mui/material';
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios, {AxiosResponse} from "axios";
 import {Timestamp} from "firebase/firestore";
 import firebaseURL from "./firebaseURL.json"
@@ -10,6 +11,7 @@ import firebaseURL from "./firebaseURL.json"
 import LendForm from "./components/LendForm";
 import ReturnForm from "./components/ReturnForm";
 import ShowLendingList from './components/ShowLendingList';
+import AppBar from "./components/AppBar"
 
 type typeLendingList = {
   id : string,
@@ -22,6 +24,23 @@ type typeLendingList = {
   studentId: string,
   }
 }
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: '#00C87F',
+      main: '#00C87F',
+      dark: '#00C87F',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#f44336',
+      dark: '#ba000d',
+      contrastText: '#000',
+    },
+  },
+});
 
 
 const getDatabaseURL = firebaseURL.root + "/getDatabase";
@@ -100,9 +119,11 @@ function App() {
 
   return (
     <>
+    <ThemeProvider theme={theme}>
     <LendingListContext.Provider value={{lendingList, setLendingList}}>
     <Container>
-    <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography>
+    {/* <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography> */}
+    <AppBar/>
     <Stack spacing={2}>
       <Paper
       elevation={3}
@@ -151,6 +172,7 @@ function App() {
   </Stack>
   </Container>
   </LendingListContext.Provider>
+  </ThemeProvider>
   </>
   );
 }

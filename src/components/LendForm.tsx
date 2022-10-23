@@ -20,6 +20,7 @@ type typePostLendingList = typeof _typePostLendingList
 
 const postDatabaseURL = firebaseURL.root + "/postDatabase";
 
+
 export default function LendForm() {
   // 撮られた画像
   const [image, setImage] = useState<string | null | undefined>(null)
@@ -257,8 +258,10 @@ export default function LendForm() {
         </Accordion>
       }
       <Box sx={{ height:20}} />
-      <Typography>ISBNは半角数字（ハイフンなし）で入力してください 例 : 9784150110000</Typography>
-      <Typography>学籍番号は半角英数字，小文字で入力してください 例 : 22s2099x</Typography>
+      <Typography variant="h5" component="h5">ISBNと学籍番号を入力</Typography>
+      <Typography>※ ISBNはカメラで読み取ることもできます</Typography>
+      <Typography>※ ISBNは半角数字（ハイフンなし）で入力（例 : 9784150110000）</Typography>
+      <Typography>※ 学籍番号は半角英数字，小文字で入力（例 : 22s2099x）</Typography>
       <Box sx={{ height:20}} />
       
       <Stack spacing={2} direction="column">
