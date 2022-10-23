@@ -87,7 +87,7 @@ export default function LendForm() {
     setOcr(text);
 
     // 取得した文字列から ISBN の部分を抽出
-    const result = text.match(/(I|1)(S|5|s)(B|8|5)N[0-9 -]{9,18}/)
+    const result = text.match(/(I|1|\[|\])(S|5|s)(B|8|5)N[0-9 -]{9,18}/)
     if(result){
       // ISBN が取得できた場合，結果から数字のみを抽出して isbn に格納
       let resultString = result[0].toString()
