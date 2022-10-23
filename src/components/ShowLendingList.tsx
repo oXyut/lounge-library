@@ -9,7 +9,7 @@ export default function ShowLendingList () {
   const { lendingList } = useContext(LendingListContext)
   return (
     <>
-    <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>貸出状況</Typography>
+    <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>貸し出されている書籍</Typography>
     {
       lendingList.length !== 0 ? (
           <>
@@ -43,7 +43,7 @@ export default function ShowLendingList () {
           </>
       ):(
         <>
-        <Typography>貸出履歴を読込中</Typography>
+        <Typography>貸出情報を読込中</Typography>
         <LinearProgress/>
         </>
       )

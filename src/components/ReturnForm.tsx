@@ -72,13 +72,13 @@ export default function RetrunForm () {
           １．学籍番号を入力
         </Typography>
         <Typography>
-          ２．返却する本を選択
+          ２．返却する書籍を選択
         </Typography>
         <Typography>
           ３．返却ボタンを押す
         </Typography>
         <Typography>
-          ※ 返却済みの本を選択すると返却を取り消せます
+          ※ 返却済みの書籍を選択すると返却を取り消せます
         </Typography>
         <Box sx={{ height: 20 }} />
 
