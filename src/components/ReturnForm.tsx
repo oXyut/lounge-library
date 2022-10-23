@@ -2,9 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { TextField } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Typography, Box } from '@mui/material';
 import { LinearProgress } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { red } from '@mui/material/colors';
-import _typeLendingList from '../../lib/typeLendingList.json';
+// import _typeLendingList from '../../lib/typeLendingList.json';
 import firebaseURL from '../firebaseURL.json';
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { StudentIdContext, LendingListContext, IsPostingNowContext } from '../App';
@@ -47,7 +45,7 @@ export default function RetrunForm () {
     const ids = Object.keys(isBookGoingToBeReturned).filter((key) => isBookGoingToBeReturned[key]) // 返却する本の情報（今はlendingDatetimeで指定している。配列で複数のlendingDatetimeを持ってる。うまく加工して）
     console.log("ids", ids)
     setIsPostingNow(true)
-    const request = await axios.post<typeLendingList>(toggleIsLendingNowURL, {ids})
+    await axios.post<typeLendingList>(toggleIsLendingNowURL, {ids})
       .then((response: AxiosResponse) => {
       console.log(response)
       setIsPostingNow(false);

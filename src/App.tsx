@@ -1,11 +1,9 @@
 import './App.css';
 import { useState, useEffect, createContext } from 'react';
-import { Button, Box, Typography, LinearProgress, Tab, Tabs, Stack, Container } from '@mui/material';
-import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material';
+import { Button, Box, Typography, Paper, Tab, Tabs, Stack, Container } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios, {AxiosResponse} from "axios";
-import {Timestamp} from "firebase/firestore";
+import axios from "axios";
 import firebaseURL from "./firebaseURL.json"
 
 import LendForm from "./components/LendForm";
@@ -65,7 +63,7 @@ function App() {
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
-  
+
   // studentIdの値が適切かどうかのフラグ
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
 
@@ -110,6 +108,8 @@ function App() {
   //(isPostingNowを見てるのは暫定的な処理で，後で変更が必要かも)
   useEffect(() => {
     sendRequestToGetDatabase()
+    // worning を黙らせてる↓
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPostingNow])
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
