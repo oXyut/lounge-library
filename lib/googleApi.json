@@ -9,6 +9,7 @@
         "selfLink": "https://www.googleapis.com/books/v1/volumes/AIBhvgAACAAJ",
         "volumeInfo": {
           "title": "群と物理",
+          "subtitle": "",
           "authors": [
             "佐藤光"
           ],
