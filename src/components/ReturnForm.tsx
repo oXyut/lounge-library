@@ -104,12 +104,12 @@ export default function RetrunForm () {
             <TableHead>
               <TableRow>
                 <TableCell>返却</TableCell>
+                <TableCell>貸出状況</TableCell>
                 <TableCell>貸出日</TableCell>
                 {/* <TableCell>学籍番号</TableCell> */}
                 {/* <TableCell>ISBN</TableCell> */}
                 <TableCell>タイトル</TableCell>
                 <TableCell>著者</TableCell>
-                <TableCell>貸出状況</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -123,11 +123,6 @@ export default function RetrunForm () {
                   <TableCell>
                     <Checkbox name={row.id} checked={isBookGoingToBeReturned[row.id] === undefined ? false : isBookGoingToBeReturned[row.id]} onChange={ checkboxHandler } />
                   </TableCell>
-                    <TableCell >{dayjs.unix(row.data.lendingDatetime._seconds).format("YY/MM/DD")}</TableCell>
-                    {/* <TableCell >{row.studentId}</TableCell> */}
-                    {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}
-                    <TableCell >{row.data.bookTitle}</TableCell>
-                    <TableCell >{row.data.bookAuthors.join(", ")}</TableCell>
                     {
                       row.data.isLendingNow ? (
                         <TableCell>貸出中</TableCell>
@@ -135,6 +130,11 @@ export default function RetrunForm () {
                         <TableCell>返却済み</TableCell>
                       )
                     }
+                    <TableCell >{dayjs.unix(row.data.lendingDatetime._seconds).format("YY/MM/DD")}</TableCell>
+                    {/* <TableCell >{row.studentId}</TableCell> */}
+                    {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}
+                    <TableCell >{row.data.bookTitle}</TableCell>
+                    <TableCell >{row.data.bookAuthors.join(", ")}</TableCell>
                   </TableRow>
                 }
                 </>
