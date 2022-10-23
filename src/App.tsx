@@ -28,9 +28,9 @@ type typeLendingList = {
 const theme = createTheme({
   palette: {
     primary: {
-      light: '#00C87F',
-      main: '#00C87F',
-      dark: '#00C87F',
+      light: '#00695C',
+      main: '#00695C',
+      dark: '#00695C',
       contrastText: '#fff',
     },
     secondary: {
