@@ -91,7 +91,6 @@ export default function LendForm() {
     if(result){
       // ISBN が取得できた場合，結果から数字のみを抽出して isbn に格納
       let resultString = result[0].toString()
-      console.log(resultString)
       resultString = resultString.slice(4).replaceAll("-", "").replaceAll(" ", "")
       setIsbn(resultString)
     }
@@ -107,9 +106,7 @@ export default function LendForm() {
       const _url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
       axios.get(_url)
         .then((res: AxiosResponse<RES>) => {
-          console.log(res)
           if(res.data.totalItems > 0){
-            console.log(res.data.items[0].volumeInfo.title, res.data.items[0].volumeInfo.subtitle)
             if(res.data.items[0].volumeInfo.subtitle){
               setTitle(res.data.items[0].volumeInfo.title + " " + res.data.items[0].volumeInfo.subtitle)
             }else{
@@ -148,14 +145,12 @@ export default function LendForm() {
       studentId: studentId,
       isLendingNow: true,
     }).then((response: AxiosResponse) => {
-      console.log(response)
       setIsbn('')
       setStudentId('')
       setIsPostingNow(false)
       setIsBookExist(false)
       setErrorSendRequestToPostDatabase("")
     }).catch((error: AxiosError) => {
-      console.log(error)
       setErrorSendRequestToPostDatabase(error.request.response)
       setIsPostingNow(false)
     })

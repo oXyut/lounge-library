@@ -84,7 +84,6 @@ function App() {
       }
     })
     setLendingList(data);
-    console.log(lendingList)
   }
 
   // TextField に studentId を入力されたときに呼び出される関数

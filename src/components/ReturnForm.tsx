@@ -41,22 +41,17 @@ export default function RetrunForm () {
 
 
   const returnBook = async () => {
-    console.log("isBookGoing...", isBookGoingToBeReturned)
-    const ids = Object.keys(isBookGoingToBeReturned).filter((key) => isBookGoingToBeReturned[key]) // 返却する本の情報（今はlendingDatetimeで指定している。配列で複数のlendingDatetimeを持ってる。うまく加工して）
-    console.log("ids", ids)
+    const ids = Object.keys(isBookGoingToBeReturned).filter((key) => isBookGoingToBeReturned[key])
     setIsPostingNow(true)
     await axios.post<typeLendingList>(toggleIsLendingNowURL, {ids})
       .then((response: AxiosResponse) => {
-      console.log(response)
       setIsPostingNow(false);
     }).catch((error: AxiosError) => {
-      console.log(error)
       setIsPostingNow(false);
     })
   }
   const checkboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.name
-    console.log({...isBookGoingToBeReturned, [id]: e.target.checked})
     setIsBookGoingToBeReturned({...isBookGoingToBeReturned, [id]: e.target.checked})
   }
 
