@@ -35,7 +35,7 @@ export default function LendForm() {
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
   // 入力されたisbnの本が存在するかどうか
-  const [isBookExist, setIsBookExist] = useState<boolean>(false) 
+  const [isBookExist, setIsBookExist] = useState<boolean>(false)
   // Google Books API で取得した書籍のタイトル
   const [title, setTitle] = useState<string>('')
   // Google Books API で取得した書籍の著者
@@ -103,15 +103,23 @@ export default function LendForm() {
   // isbn が更新されたときに呼び出される関数
   // Google Books API にリクエストを送り，書籍のタイトルと著者を取得する。
   useEffect(() =>{
-    if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){ 
+    if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){
       const _url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
       axios.get(_url)
         .then((res: AxiosResponse<RES>) => {
           console.log(res)
           if(res.data.totalItems > 0){
-            console.log(res.data.items[0].volumeInfo.title)
-            setTitle(res.data.items[0].volumeInfo.title)
-            setAuthors(res.data.items[0].volumeInfo.authors)
+            console.log(res.data.items[0].volumeInfo.title, res.data.items[0].volumeInfo.subtitle)
+            if(res.data.items[0].volumeInfo.subtitle){
+              setTitle(res.data.items[0].volumeInfo.title + " " + res.data.items[0].volumeInfo.subtitle)
+            }else{
+              setTitle(res.data.items[0].volumeInfo.title)
+            }
+            if(res.data.items[0].volumeInfo.authors){
+              setAuthors(res.data.items[0].volumeInfo.authors)
+            }else{
+              setAuthors(["著者未定義"])
+            }
             setIsBookExist(true)
           } else {
             setTitle("")
@@ -264,7 +272,7 @@ export default function LendForm() {
       <Typography>※ ISBNは半角数字（ハイフンなし）で入力（例 : 9784150110000）</Typography>
       <Typography>※ 学籍番号は半角英数字，小文字で入力（例 : 22s2099x）</Typography>
       <Box sx={{ height:20}} />
-      
+
       <Stack spacing={2} direction="column">
           <TextField
             value={isbn}
@@ -272,7 +280,7 @@ export default function LendForm() {
             onChange={isbnOnChangeHandler}
             error={isbn.length !== 0 && !isBookExist}
           ></TextField>
-      
+
         <TextField
           value={studentId}
           label="学籍番号"
