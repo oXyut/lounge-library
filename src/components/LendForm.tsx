@@ -258,7 +258,8 @@ export default function LendForm() {
         </Accordion>
       }
       <Box sx={{ height:20}} />
-      <Typography variant="h5" component="h5">ISBNと学籍番号を入力</Typography>
+      <Typography variant="h6">借りる方法</Typography>
+      <Typography>学籍番号とISBNを入力して借りるボタンを押してください</Typography>
       <Typography>※ ISBNはカメラで読み取ることもできます</Typography>
       <Typography>※ ISBNは半角数字（ハイフンなし）で入力（例 : 9784150110000）</Typography>
       <Typography>※ 学籍番号は半角英数字，小文字で入力（例 : 22s2099x）</Typography>
