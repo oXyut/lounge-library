@@ -1,6 +1,6 @@
 import { createWorker } from 'tesseract.js';
 import { useRef, useCallback, useState, useEffect, useContext } from 'react';
-import { Box, Button, TextField, Typography, LinearProgress, Stack } from '@mui/material';
+import { Box, Button, TextField, Typography, LinearProgress, Stack, Snackbar } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import NoPhotographyOutlinedIcon from '@mui/icons-material/NoPhotographyOutlined';
@@ -45,6 +45,9 @@ export default function LendForm() {
 
   const { studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler } = useContext(StudentIdContext)
   const { isPostingNow, setIsPostingNow } = useContext(IsPostingNowContext)
+
+  // snakbarを管理するuseState
+  const [snackbar, setSnackbar] = useState<{open: boolean, message: string}>({open: false, message: ""})
 
   // カメラの設定。画質と，起動するカメラの向き（内カメラか外カメラか）を指定。
   const videoConstraints = {
@@ -150,6 +153,7 @@ export default function LendForm() {
       setIsPostingNow(false)
       setIsBookExist(false)
       setErrorSendRequestToPostDatabase("")
+      setSnackbar({open: true, message: `貸出しました：${title}`})
     }).catch((error: AxiosError) => {
       setErrorSendRequestToPostDatabase(error.request.response)
       setIsPostingNow(false)
@@ -300,6 +304,16 @@ export default function LendForm() {
           借りる
         </Button>
       </Stack>
+      <Snackbar
+        open={snackbar.open}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        autoHideDuration={6000}
+        message = {snackbar.message}
+        onClose={() => setSnackbar({open: false, message: ""})}
+      />
 
       {
         isPostingNow ? (

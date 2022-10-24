@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { TextField } from '@mui/material';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Typography, Box } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Typography, Box, Snackbar } from '@mui/material';
 import { LinearProgress } from '@mui/material';
 // import _typeLendingList from '../../lib/typeLendingList.json';
 import firebaseURL from '../firebaseURL.json';
@@ -29,6 +29,8 @@ export default function RetrunForm () {
   const { lendingList } = useContext(LendingListContext)
   const { isPostingNow, setIsPostingNow} = useContext(IsPostingNowContext)
   const [ isBookGoingToBeReturned, setIsBookGoingToBeReturned ] = useState<{[key:string]:boolean}>({})
+  // snackbarを管理するuseState
+  const [snackbar, setSnackbar] = useState<{open: boolean, message: string}>({open: false, message: ""})
 
   useEffect(() => {
     const lendingListByStudentId = lendingList.filter((lending) => lending.data.studentId === studentId)
@@ -46,6 +48,7 @@ export default function RetrunForm () {
     await axios.post<typeLendingList>(toggleIsLendingNowURL, {ids})
       .then((response: AxiosResponse) => {
       setIsPostingNow(false);
+      setSnackbar({open: true, message: `${ids.length}冊返却しました`})
     }).catch((error: AxiosError) => {
       setIsPostingNow(false);
     })
@@ -143,6 +146,16 @@ export default function RetrunForm () {
         >
           返却
         </Button>
+        <Snackbar
+          open={snackbar.open}
+          message = {snackbar.message}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          autoHideDuration={6000}
+          onClose={() => setSnackbar({open: false, message: ""})}
+        />
         </>):(<></>)
 }
 </>)}
