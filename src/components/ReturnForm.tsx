@@ -47,8 +47,8 @@ export default function RetrunForm () {
     setIsPostingNow(true)
     await axios.post<typeLendingList>(toggleIsLendingNowURL, {ids})
       .then((response: AxiosResponse) => {
-      setIsPostingNow(false);
-      setSnackbar({open: true, message: `${ids.length}冊返却しました`})
+        setTimeout(()=>{setIsPostingNow(false)}, 500); // firestoreの反映に時間がかかるので、0.5秒待つ
+        setSnackbar({open: true, message: `${ids.length}冊返却しました`});
     }).catch((error: AxiosError) => {
       setIsPostingNow(false);
     })
