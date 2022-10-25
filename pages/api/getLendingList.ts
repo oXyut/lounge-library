@@ -39,11 +39,13 @@ export default function handler(
   }
   // 返却済みのデータのうち，一週間以内に返却されたものを取得
   const returnedData = JSON.parse(fs.readFileSync(returnedDataPath, 'utf8')).filter((item: Lending) => {
-    const now = new Date()
-    const lendingDatetime = new Date(item.lendingDatetime)
-    const diff = now.getTime() - lendingDatetime.getTime()
-    const diffDays = diff / (1000 * 3600 * 24)
-    return diffDays < 7
+    if (item.returnedDatetime !== null) {
+      const now = new Date()
+      const returnedDatetime = new Date(item.returnedDatetime)
+      const diff = now.getTime() - returnedDatetime.getTime()
+      const diffDays = diff / (1000 * 3600 * 24)
+      return diffDays < 7
+    }
   })
   returnedData.map((item: Lending) => {
     item.isLendingNow = false
