@@ -142,7 +142,6 @@ export default function LendForm() {
       studentId: studentId,
     }).then((response: AxiosResponse) => {
       setIsbn('')
-      setStudentId('')
       setIsPostingNow(false)
       setIsBookExist(false)
       setErrorSendRequestToPostDatabase("")

@@ -15,12 +15,12 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Lending[]>
 ) {
-  const dataPath = path.join(process.cwd(), 'data', 'lending.json')
+  const lendingDataPath = path.join(process.cwd(), 'data', 'lending.json')
   try{
-    fs.statSync(dataPath)
+    fs.statSync(lendingDataPath)
   } catch (err) {
-    fs.writeFileSync(dataPath, '[]')
+    fs.writeFileSync(lendingDataPath, '[]')
   }
-  const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'))
+  const jsonData = JSON.parse(fs.readFileSync(lendingDataPath, 'utf8'))
   res.status(200).json(jsonData)
 }
