@@ -25,7 +25,7 @@ export default function ShowLendingList () {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {lendingList.map((row) => (
+                {lendingList.filter(row => row.isLendingNow === true).map((row) => (
                   <TableRow
                   key={row.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

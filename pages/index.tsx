@@ -16,6 +16,7 @@ type typeLendingList = {
   bookAuthors: string[],
   bookTitle: string,
   studentId: string,
+  isLendingNow: boolean,
 }
 
 const theme = createTheme({

@@ -28,8 +28,15 @@ export default function RetrunForm () {
 
   const returnBook = async () => {
     const ids = Object.keys(isBookGoingToBeReturned).filter((key) => isBookGoingToBeReturned[key])
+    const data = ids.map((id) => lendingList.filter((lending) => lending.id === id)[0]).map((lending) => {
+      return {
+        id: lending.id,
+        isLendingNow: lending.isLendingNow
+      }
+    })
+    console.log(data)
     setIsPostingNow(true)
-    await axios.post("/api/returnBooks", {ids})
+    await axios.post("/api/returnBooks", {data})
       .then((response: AxiosResponse) => {
       setIsPostingNow(false);
       setSnackbar({open: true, message: `${ids.length}冊返却しました`})
@@ -37,6 +44,7 @@ export default function RetrunForm () {
       setIsPostingNow(false);
     })
   }
+
   const checkboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.name
     setIsBookGoingToBeReturned({...isBookGoingToBeReturned, [id]: e.target.checked})
@@ -103,13 +111,13 @@ export default function RetrunForm () {
                   <TableCell>
                     <Checkbox name={row.id} checked={isBookGoingToBeReturned[row.id] === undefined ? false : isBookGoingToBeReturned[row.id]} onChange={ checkboxHandler } />
                   </TableCell>
-                    {/* {
+                    {
                       row.isLendingNow ? (
                         <TableCell>貸出中</TableCell>
                       ) : (
                         <TableCell>返却済み</TableCell>
                       )
-                    } */}
+                    }
                     <TableCell >{dayjs.unix(row.lendingDatetime/1000).format("YY/MM/DD")}</TableCell>
                     {/* <TableCell >{row.studentId}</TableCell> */}
                     {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}

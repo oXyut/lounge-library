@@ -10,6 +10,7 @@ type Lending = {
   bookAuthors: string[],
   lendingDatetime: number,
   id: string,
+  isLendingNow: boolean,
 }
 export default function handler(
   req: NextApiRequest,
@@ -30,10 +31,13 @@ export default function handler(
   const lendingData = JSON.parse(fs.readFileSync(lendingDataPath, 'utf8'))
   const returnedData = JSON.parse(fs.readFileSync(returnedDataPath, 'utf8'))
 
-  const newLendingData = lendingData.filter((item: Lending) => !req.body.ids.includes(item.id))
+  const returnedIds = req.body.data.filter((item: Lending) => item.isLendingNow).map((item: Lending) => item.id)
+  const undoIds = req.body.data.filter((item: Lending) => !item.isLendingNow).map((item: Lending) => item.id)
+
+  const newLendingData = [...lendingData.filter((item: Lending) => !returnedIds.includes(item.id)),...returnedData.filter((item: Lending) => undoIds.includes(item.id))]
   fs.writeFileSync(lendingDataPath, JSON.stringify(newLendingData))
 
-  const newReturndedData = [...returnedData, ...lendingData.filter((item: Lending) => req.body.ids.includes(item.id))]
+  const newReturndedData = [...returnedData.filter((item: Lending) => !undoIds.includes(item.id)),...lendingData.filter((item: Lending) => returnedIds.includes(item.id))]
   fs.writeFileSync(returnedDataPath, JSON.stringify(newReturndedData))
 
   res.status(200).send("ok")
