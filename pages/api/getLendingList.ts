@@ -11,6 +11,7 @@ type Lending = {
   bookAuthors: string[],
   lendingDatetime: number,
   isLendingNow: boolean,
+  returnedDatetime: number | null,
 }
 export default function handler(
   req: NextApiRequest,
