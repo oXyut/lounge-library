@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Typography, LinearProgress } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-import { LendingListContext } from '../App';
+import { LendingListContext } from '../pages/index';
 import dayjs from 'dayjs';
 
 export default function ShowLendingList () {
@@ -25,16 +25,16 @@ export default function ShowLendingList () {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {lendingList.filter(row => row.data.isLendingNow === true).map((row) => (
+                {lendingList.map((row) => (
                   <TableRow
                   key={row.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell >{dayjs.unix(row.data.lendingDatetime._seconds).format("YY/MM/DD")}</TableCell>
-                    <TableCell >{row.data.studentId}</TableCell>
+                    <TableCell >{dayjs.unix(row.lendingDatetime/1000).format("YY/MM/DD")}</TableCell>
+                    <TableCell >{row.studentId}</TableCell>
                     {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}
-                    <TableCell >{row.data.bookTitle}</TableCell>
-                    <TableCell >{row.data.bookAuthors.join(", ")}</TableCell>
+                    <TableCell >{row.bookTitle}</TableCell>
+                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

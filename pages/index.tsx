@@ -1,26 +1,21 @@
-import './App.css';
 import { useState, useEffect, createContext } from 'react';
 import { Button, Box, Typography, Paper, Tab, Tabs, Stack, Container } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
-import firebaseURL from "./firebaseURL.json"
 
-import LendForm from "./components/LendForm";
-import ReturnForm from "./components/ReturnForm";
-import ShowLendingList from './components/ShowLendingList';
-import AppBar from "./components/AppBar"
+import LendForm from "../components/LendForm";
+import ReturnForm from "../components/ReturnForm";
+import ShowLendingList from '../components/ShowLendingList';
+import AppBar from "../components/AppBar"
 
 type typeLendingList = {
   id : string,
-  data: {
-  lendingDatetime: {_seconds: number, _nanoseconds: number},
-  isLendingNow: boolean,
+  lendingDatetime: number,
   bookIsbn: string,
   bookAuthors: string[],
   bookTitle: string,
   studentId: string,
-  }
 }
 
 const theme = createTheme({
@@ -40,8 +35,6 @@ const theme = createTheme({
   },
 });
 
-
-const getDatabaseURL = firebaseURL.root + "/getDatabase";
 
 
 export const StudentIdContext = createContext({} as {
@@ -72,12 +65,12 @@ function App() {
 
   // axiosでデータベースにリクエストを送る
   const sendRequestToGetDatabase = async () => {
-    const response = await axios.get<typeLendingList[]>(getDatabaseURL, {
+    const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
     })
     const { data } = response;
     // dataをdata.data.lendingDatetimeをキーとして降順でソートする
     data.sort((a, b) => {
-      if (a.data.lendingDatetime._seconds > b.data.lendingDatetime._seconds) {
+      if (a.lendingDatetime > b.lendingDatetime) {
         return -1;
       } else {
         return 1;

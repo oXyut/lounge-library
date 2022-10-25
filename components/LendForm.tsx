@@ -8,17 +8,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Webcam from 'react-webcam';
 import axios, { AxiosResponse, AxiosError } from "axios";
 
-import { StudentIdContext, IsPostingNowContext } from '../App';
+import { StudentIdContext, IsPostingNowContext } from '../pages/index';
 
-import r from "../../lib/googleApi.json";
-import firebaseURL from "../firebaseURL.json"
-
-import _typePostLendingList from "../../lib/typePostLendingList.json";
+import r from "../lib/googleApi.json";
 
 type RES = typeof r
-type typePostLendingList = typeof _typePostLendingList
-
-const postDatabaseURL = firebaseURL.root + "/postDatabase";
 
 
 export default function LendForm() {
@@ -141,12 +135,11 @@ export default function LendForm() {
   // axiosでデータベースに貸出情報をjson形式で送る
   const sendRequestToPostDatabase = async () => {
     setIsPostingNow(true)
-    const request = await axios.post<typePostLendingList>(postDatabaseURL, {
+    await axios.post("/api/postNewLending", {
       bookIsbn: isbn,
       bookAuthors: authors,
       bookTitle: title,
       studentId: studentId,
-      isLendingNow: true,
     }).then((response: AxiosResponse) => {
       setIsbn('')
       setStudentId('')
