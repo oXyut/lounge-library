@@ -48,12 +48,19 @@ export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[], setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
 });
 
+export const IsFirstResquestContext = createContext({} as {
+  isFirstRequest: boolean, setIsFirstRequest: React.Dispatch<React.SetStateAction<boolean>>,
+});
+
 function App() {
   // useState の定義一覧。
   // 学籍番号
   const [studentId, setStudentId] = useState<string>('')
   // Axios Response Type
   const [lendingList, setLendingList] = useState<typeLendingList[]>([])
+
+  // 一度でもsendRequestが実行されたかどうか
+  const [isFirstRequest, setIsFirstRequest] = useState<boolean>(false)
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
@@ -68,6 +75,7 @@ function App() {
   const sendRequestToGetDatabase = async () => {
     const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
     })
+    setIsFirstRequest(true);
     const { data } = response;
     // dataをdata.data.lendingDatetimeをキーとして降順でソートする
     data.sort((a, b) => {
@@ -114,6 +122,7 @@ function App() {
     <>
     <ThemeProvider theme={theme}>
     <LendingListContext.Provider value={{lendingList, setLendingList}}>
+    <IsFirstResquestContext.Provider value={{isFirstRequest, setIsFirstRequest}}>
     <Container>
     {/* <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography> */}
     <AppBar/>
@@ -164,6 +173,7 @@ function App() {
   </Paper>
   </Stack>
   </Container>
+  </IsFirstResquestContext.Provider >
   </LendingListContext.Provider>
   </ThemeProvider>
   </>
