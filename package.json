@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsc -p tsconfig.server.json && node ./dist/index.js",
+    "dev": "tsc -p tsconfig.server.json && NODE_ENV=development node ./dist/index.js",
     "build:next": "next build",
     "build:server": "tsc -p tsconfig.server.json",
     "export": "next export",
