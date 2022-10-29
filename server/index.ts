@@ -23,6 +23,7 @@ type Lending = {
 
 const returnedDataPath = path.join(process.cwd(), 'data', 'returned.json')
 
+// 毎日0時に，31日以上前に返却されたデータをアーカイブする
 cron.schedule('0 0 * * *', () => {
   const fullReturnedData = JSON.parse(fs.readFileSync(returnedDataPath, 'utf8'))
   const newArchiveData = fullReturnedData.filter((item: Lending) => {
