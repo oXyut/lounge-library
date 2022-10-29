@@ -44,13 +44,17 @@ export const StudentIdContext = createContext({} as {
 export const IsPostingNowContext = createContext({} as {
   isPostingNow: boolean, setIsPostingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
+export const IsRequestingNowContext = createContext({} as {
+  isRequestingNow: boolean, setIsRequestingNow: React.Dispatch<React.SetStateAction<boolean>>,
+});
 export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[], setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
 });
-
 export const IsFirstResquestContext = createContext({} as {
   isFirstRequest: boolean, setIsFirstRequest: React.Dispatch<React.SetStateAction<boolean>>,
 });
+
+
 
 function App() {
   // useState の定義一覧。
@@ -65,6 +69,9 @@ function App() {
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
 
+  // 本の情報をリクエストするときのプログレスバーを表示フラグ管理
+  const [isRequestingNow, setIsRequestingNow] = useState<boolean>(false)
+
   // studentIdの値が適切かどうかのフラグ
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
 
@@ -73,9 +80,9 @@ function App() {
 
   // axiosでデータベースにリクエストを送る
   const sendRequestToGetDatabase = async () => {
+    setIsRequestingNow(true);
     const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
     })
-    setIsFirstRequest(true);
     const { data } = response;
     // dataをdata.data.lendingDatetimeをキーとして降順でソートする
     data.sort((a, b) => {
@@ -86,6 +93,7 @@ function App() {
       }
     })
     setLendingList(data);
+    setIsRequestingNow(false);
   }
 
   // TextField に studentId を入力されたときに呼び出される関数
@@ -122,7 +130,6 @@ function App() {
     <>
     <ThemeProvider theme={theme}>
     <LendingListContext.Provider value={{lendingList, setLendingList}}>
-    <IsFirstResquestContext.Provider value={{isFirstRequest, setIsFirstRequest}}>
     <Container>
     {/* <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography> */}
     <AppBar/>
@@ -165,7 +172,11 @@ function App() {
         p: 3,
       }}
     >
+    <IsFirstResquestContext.Provider value={{isFirstRequest, setIsFirstRequest}}>
+    <IsRequestingNowContext.Provider value={{isRequestingNow, setIsRequestingNow}}>
     <ShowLendingList />
+    </IsRequestingNowContext.Provider>
+    </IsFirstResquestContext.Provider >
     <Button onClick={sendRequestToGetDatabase}>
       <ReplayIcon sx={{ mr: 1 }} />
       更新する
@@ -173,7 +184,6 @@ function App() {
   </Paper>
   </Stack>
   </Container>
-  </IsFirstResquestContext.Provider >
   </LendingListContext.Provider>
   </ThemeProvider>
   </>
