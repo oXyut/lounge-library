@@ -23,7 +23,7 @@ export default function handler(
   }
   const id = uuidv4();
   const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'))
-  jsonData.push({...req.body, lendingDatetime: Date.now(), id: id})
+  jsonData.push({...req.body, lendingDatetime: Date.now(), id: id, returnedDatetime: null})
   fs.writeFileSync(dataPath, JSON.stringify(jsonData))
   res.status(200).json({id: id})
 }
