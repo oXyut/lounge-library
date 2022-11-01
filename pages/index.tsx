@@ -17,6 +17,7 @@ type typeLendingList = {
   bookTitle: string,
   studentId: string,
   isLendingNow: boolean,
+  returnedDatetime: number,
 }
 
 const theme = createTheme({
@@ -39,13 +40,18 @@ const theme = createTheme({
 
 
 export const StudentIdContext = createContext({} as {
-  studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>, isStudentIdValid: boolean, studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
+  studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>,
+  isStudentIdValid: boolean,
+  studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void,
 });
 export const IsPostingNowContext = createContext({} as {
   isPostingNow: boolean, setIsPostingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
 export const LendingListContext = createContext({} as {
-  lendingList: typeLendingList[], setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+  lendingList: typeLendingList[],
+  setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+  sendRequestToGetDatabase: () => void,
+  isGettingNow: boolean,
 });
 
 function App() {
@@ -54,6 +60,8 @@ function App() {
   const [studentId, setStudentId] = useState<string>('')
   // Axios Response Type
   const [lendingList, setLendingList] = useState<typeLendingList[]>([])
+  // getでデータベースからのレスポンスを待っているかどうか
+  const [isGettingNow, setIsGettingNow] = useState<boolean>(false)
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
@@ -66,6 +74,7 @@ function App() {
 
   // axiosでデータベースにリクエストを送る
   const sendRequestToGetDatabase = async () => {
+    setIsGettingNow(true)
     const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
     })
     const { data } = response;
@@ -78,6 +87,7 @@ function App() {
       }
     })
     setLendingList(data);
+    setIsGettingNow(false)
   }
 
   // TextField に studentId を入力されたときに呼び出される関数
@@ -113,7 +123,7 @@ function App() {
   return (
     <>
     <ThemeProvider theme={theme}>
-    <LendingListContext.Provider value={{lendingList, setLendingList}}>
+    <LendingListContext.Provider value={{lendingList, setLendingList, sendRequestToGetDatabase, isGettingNow}}>
     <Container>
     {/* <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography> */}
     <AppBar/>
@@ -152,15 +162,8 @@ function App() {
 
     <Paper
       elevation={3}
-      sx={{
-        p: 3,
-      }}
     >
     <ShowLendingList />
-    <Button onClick={sendRequestToGetDatabase}>
-      <ReplayIcon sx={{ mr: 1 }} />
-      更新する
-    </Button>
   </Paper>
   </Stack>
   </Container>
