@@ -2,18 +2,16 @@ import { useContext } from 'react';
 import { Typography, LinearProgress, Button } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-import { LendingListContext, IsFirstResquestContext, IsRequestingNowContext } from '../pages/index';
+import { LendingListContext, IsRequestingNowContext } from '../pages/index';
 import dayjs from 'dayjs';
 
 export default function ShowLendingList () {
   const { lendingList } = useContext(LendingListContext)
-  const { isFirstRequest } = useContext(IsFirstResquestContext)
   const { isRequestingNow } = useContext(IsRequestingNowContext)
   return (
     <>
     <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>貸し出されている書籍</Typography>
     {
-      lendingList.length !== 0 ? (
           <>
           {isRequestingNow && <LinearProgress />}
           <TableContainer>
@@ -44,19 +42,7 @@ export default function ShowLendingList () {
             </Table>
           </TableContainer>
           </>
-      ):(
-        isFirstRequest ? (
-          <>
-          <Typography>貸し出されている書籍はありません</Typography>
-          </>
-        ):(
-        <>
-        <Typography>貸出情報を読込中</Typography>
-        <LinearProgress/>
-        </>
-        )
-      )
-  }
+    }
     </>
   )
 }

@@ -50,10 +50,6 @@ export const IsRequestingNowContext = createContext({} as {
 export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[], setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
 });
-export const IsFirstResquestContext = createContext({} as {
-  isFirstRequest: boolean, setIsFirstRequest: React.Dispatch<React.SetStateAction<boolean>>,
-});
-
 
 
 function App() {
@@ -62,9 +58,6 @@ function App() {
   const [studentId, setStudentId] = useState<string>('')
   // Axios Response Type
   const [lendingList, setLendingList] = useState<typeLendingList[]>([])
-
-  // 一度でもsendRequestが実行されたかどうか
-  const [isFirstRequest, setIsFirstRequest] = useState<boolean>(false)
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
@@ -172,11 +165,9 @@ function App() {
         p: 3,
       }}
     >
-    <IsFirstResquestContext.Provider value={{isFirstRequest, setIsFirstRequest}}>
     <IsRequestingNowContext.Provider value={{isRequestingNow, setIsRequestingNow}}>
     <ShowLendingList />
     </IsRequestingNowContext.Provider>
-    </IsFirstResquestContext.Provider >
     <Button onClick={sendRequestToGetDatabase}>
       <ReplayIcon sx={{ mr: 1 }} />
       更新する
