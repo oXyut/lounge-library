@@ -53,7 +53,6 @@ export const IsGettingNowContext = createContext({} as {
 export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[],
   setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
-  sendRequestToGetDatabase: () => void,
   isGettingNow: boolean,
 });
 
@@ -69,9 +68,6 @@ function App() {
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
-
-  // 本の情報をリクエストするときのプログレスバーを表示フラグ管理
-  const [isGettingNow, setIsGettingNow] = useState<boolean>(false)
 
   // studentIdの値が適切かどうかのフラグ
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
@@ -130,7 +126,7 @@ function App() {
   return (
     <>
     <ThemeProvider theme={theme}>
-      <LendingListContext.Provider value={{lendingList, setLendingList}}>
+      <LendingListContext.Provider value={{lendingList, setLendingList, isGettingNow}}>
         <Container>
           <AppBar/>
           <Stack spacing={2}>

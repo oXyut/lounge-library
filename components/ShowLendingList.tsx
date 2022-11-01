@@ -7,7 +7,7 @@ import { LendingListContext, IsGettingNowContext } from '../pages/index';
 import dayjs from 'dayjs';
 
 export default function ShowLendingList () {
-  const { lendingList, sendRequestToGetDatabase, isGettingNow } = useContext(LendingListContext)
+  const { lendingList, isGettingNow } = useContext(LendingListContext)
   const [tabValue, setTabValue] = useState<number>(0)
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -68,10 +68,6 @@ export default function ShowLendingList () {
           </TableContainer>
           </>
     }
-    <Button onClick={sendRequestToGetDatabase}>
-      <ReplayIcon sx={{ mr: 1 }} />
-      更新する
-    </Button>
     </Box>
     </>
   )
