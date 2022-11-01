@@ -3,7 +3,7 @@ import { Typography, LinearProgress } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Tabs, Tab, Button } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 
-import { LendingListContext } from '../pages/index';
+import { LendingListContext, IsGettingNowContext } from '../pages/index';
 import dayjs from 'dayjs';
 
 export default function ShowLendingList () {
@@ -35,15 +35,14 @@ export default function ShowLendingList () {
       <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>一週間以内に返却された書籍</Typography>
     )}
     {
-      !isGettingNow ? (
           <>
+          {isGettingNow && <LinearProgress />}
           <TableContainer>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   <TableCell>{ tabValue == 0 ? "貸出日" : "返却日" }</TableCell>
                   <TableCell>学籍番号</TableCell>
-                  {/* <TableCell>ISBN</TableCell> */}
                   <TableCell>タイトル</TableCell>
                   <TableCell>著者</TableCell>
                 </TableRow>
@@ -60,7 +59,6 @@ export default function ShowLendingList () {
                       <TableCell >{dayjs.unix(row.returnedDatetime/1000).format("YY/MM/DD")}</TableCell>
                     )}
                     <TableCell >{row.studentId}</TableCell>
-                    {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}
                     <TableCell >{row.bookTitle}</TableCell>
                     <TableCell >{row.bookAuthors.join(", ")}</TableCell>
                   </TableRow>
@@ -69,13 +67,7 @@ export default function ShowLendingList () {
             </Table>
           </TableContainer>
           </>
-      ):(
-        <>
-        <Typography>貸出情報を読込中</Typography>
-        <LinearProgress/>
-        </>
-      )
-  }
+    }
     <Button onClick={sendRequestToGetDatabase}>
       <ReplayIcon sx={{ mr: 1 }} />
       更新する

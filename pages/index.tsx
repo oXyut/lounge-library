@@ -47,12 +47,16 @@ export const StudentIdContext = createContext({} as {
 export const IsPostingNowContext = createContext({} as {
   isPostingNow: boolean, setIsPostingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
+export const IsGettingNowContext = createContext({} as {
+  isGettingNow: boolean, setIsGettingNow: React.Dispatch<React.SetStateAction<boolean>>,
+});
 export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[],
   setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
   sendRequestToGetDatabase: () => void,
   isGettingNow: boolean,
 });
+
 
 function App() {
   // useState の定義一覧。
@@ -66,15 +70,18 @@ function App() {
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
 
+  // 本の情報をリクエストするときのプログレスバーを表示フラグ管理
+  const [isGettingNow, setIsGettingNow] = useState<boolean>(false)
+
   // studentIdの値が適切かどうかのフラグ
   const [isStudentIdValid, setIsStudentIdValid] = useState<boolean>(false)
 
   // tabの状態を管理するuseState
   const [tabValue, setTabValue] = useState<number>(0)
 
-  // axiosでデータベースにリクエストを送る
-  const sendRequestToGetDatabase = async () => {
-    setIsGettingNow(true)
+  // axios経由でデータベースからLendingListを取ってくる
+  const fetchLendingList = async () => {
+    setIsGettingNow(true);
     const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
     })
     const { data } = response;
@@ -87,7 +94,7 @@ function App() {
       }
     })
     setLendingList(data);
-    setIsGettingNow(false)
+    setIsGettingNow(false);
   }
 
   // TextField に studentId を入力されたときに呼び出される関数
@@ -110,7 +117,7 @@ function App() {
   // データベースにリクエストを送って貸出情報を更新する
   //(isPostingNowを見てるのは暫定的な処理で，後で変更が必要かも)
   useEffect(() => {
-    sendRequestToGetDatabase()
+    fetchLendingList()
     // worning を黙らせてる↓
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPostingNow])
@@ -123,51 +130,59 @@ function App() {
   return (
     <>
     <ThemeProvider theme={theme}>
-    <LendingListContext.Provider value={{lendingList, setLendingList, sendRequestToGetDatabase, isGettingNow}}>
-    <Container>
-    {/* <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography> */}
-    <AppBar/>
-    <Stack spacing={2}>
-      <Paper
-      elevation={3}
-      >
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          variant="fullWidth"
-        >
-          <Tab label={<Typography variant='h6'>貸出</Typography>} {...{id: "tab-rent"}}/>
-          <Tab label={<Typography variant='h6'>返却</Typography>} {...{id: "tab-return"}}/>
-        </Tabs>
-      </Box>
-      <Box
-        sx={{
-          p: 3,
-        }}
-      >
-        <StudentIdContext.Provider value={{studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler}}>
-          <IsPostingNowContext.Provider value={{isPostingNow, setIsPostingNow}}>
+      <LendingListContext.Provider value={{lendingList, setLendingList}}>
+        <Container>
+          <AppBar/>
+          <Stack spacing={2}>
+            <Paper
+            elevation={3}
+            >
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                  value={tabValue}
+                  onChange={handleTabChange}
+                  variant="fullWidth"
+                >
+                  <Tab label={<Typography variant='h6'>貸出</Typography>} {...{id: "tab-rent"}}/>
+                  <Tab label={<Typography variant='h6'>返却</Typography>} {...{id: "tab-return"}}/>
+                </Tabs>
+              </Box>
+              <Box
+                sx={{
+                  p: 3,
+                }}
+              >
+                <StudentIdContext.Provider value={{studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler}}>
+                  <IsPostingNowContext.Provider value={{isPostingNow, setIsPostingNow}}>
 
-            {tabValue === 0 &&
-              <LendForm />
-            }
-            {tabValue === 1 &&
-              <ReturnForm />
-            }
-          </IsPostingNowContext.Provider>
-        </StudentIdContext.Provider>
-      </Box>
-    </Paper>
+                    {tabValue === 0 &&
+                      <LendForm />
+                    }
+                    {tabValue === 1 &&
+                      <ReturnForm />
+                    }
+                  </IsPostingNowContext.Provider>
+                </StudentIdContext.Provider>
+              </Box>
+            </Paper>
 
-    <Paper
-      elevation={3}
-    >
-    <ShowLendingList />
-  </Paper>
-  </Stack>
-  </Container>
-  </LendingListContext.Provider>
+            <Paper
+              elevation={3}
+              sx={{
+                p: 3,
+              }}
+            >
+              <IsGettingNowContext.Provider value={{isGettingNow, setIsGettingNow}}>
+                <ShowLendingList />
+              </IsGettingNowContext.Provider>
+              <Button onClick={fetchLendingList}>
+                <ReplayIcon sx={{ mr: 1 }} />
+                更新する
+              </Button>
+            </Paper>
+          </Stack>
+      </Container>
+    </LendingListContext.Provider>
   </ThemeProvider>
   </>
   );
