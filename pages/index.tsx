@@ -17,6 +17,7 @@ type typeLendingList = {
   bookTitle: string,
   studentId: string,
   isLendingNow: boolean,
+  returnedDatetime: number,
 }
 
 const theme = createTheme({
@@ -39,7 +40,9 @@ const theme = createTheme({
 
 
 export const StudentIdContext = createContext({} as {
-  studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>, isStudentIdValid: boolean, studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
+  studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>,
+  isStudentIdValid: boolean,
+  studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void,
 });
 export const IsPostingNowContext = createContext({} as {
   isPostingNow: boolean, setIsPostingNow: React.Dispatch<React.SetStateAction<boolean>>,
@@ -48,7 +51,10 @@ export const IsGettingNowContext = createContext({} as {
   isGettingNow: boolean, setIsGettingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
 export const LendingListContext = createContext({} as {
-  lendingList: typeLendingList[], setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+  lendingList: typeLendingList[],
+  setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+  sendRequestToGetDatabase: () => void,
+  isGettingNow: boolean,
 });
 
 
@@ -58,6 +64,8 @@ function App() {
   const [studentId, setStudentId] = useState<string>('')
   // Axios Response Type
   const [lendingList, setLendingList] = useState<typeLendingList[]>([])
+  // getでデータベースからのレスポンスを待っているかどうか
+  const [isGettingNow, setIsGettingNow] = useState<boolean>(false)
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
