@@ -53,6 +53,7 @@ export const IsGettingNowContext = createContext({} as {
 export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[],
   setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+  fetchLendingList: () => void,
   isGettingNow: boolean,
 });
 
@@ -126,7 +127,7 @@ function App() {
   return (
     <>
     <ThemeProvider theme={theme}>
-      <LendingListContext.Provider value={{lendingList, setLendingList, isGettingNow}}>
+      <LendingListContext.Provider value={{lendingList, setLendingList, fetchLendingList, isGettingNow}}>
         <Container>
           <AppBar/>
           <Stack spacing={2}>
@@ -164,17 +165,10 @@ function App() {
 
             <Paper
               elevation={3}
-              sx={{
-                p: 3,
-              }}
             >
               <IsGettingNowContext.Provider value={{isGettingNow, setIsGettingNow}}>
                 <ShowLendingList />
               </IsGettingNowContext.Provider>
-              <Button onClick={fetchLendingList}>
-                <ReplayIcon sx={{ mr: 1 }} />
-                更新する
-              </Button>
             </Paper>
           </Stack>
       </Container>
