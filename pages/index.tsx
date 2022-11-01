@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext } from 'react';
-import { Button, Box, Typography, Paper, Tab, Tabs, Stack, Container } from '@mui/material';
-import ReplayIcon from '@mui/icons-material/Replay';
+import { IconButton, Box, Typography, Paper, Tab, Tabs, Stack, Container } from '@mui/material';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
 
@@ -46,9 +46,6 @@ export const StudentIdContext = createContext({} as {
 });
 export const IsPostingNowContext = createContext({} as {
   isPostingNow: boolean, setIsPostingNow: React.Dispatch<React.SetStateAction<boolean>>,
-});
-export const IsGettingNowContext = createContext({} as {
-  isGettingNow: boolean, setIsGettingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
 export const LendingListContext = createContext({} as {
   lendingList: typeLendingList[],
@@ -166,11 +163,23 @@ function App() {
             <Paper
               elevation={3}
             >
-              <IsGettingNowContext.Provider value={{isGettingNow, setIsGettingNow}}>
-                <ShowLendingList />
-              </IsGettingNowContext.Provider>
+              <ShowLendingList />
             </Paper>
           </Stack>
+          <Box sx={{ height: 20 }} />
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Stack>
+              <IconButton href="https://github.com/oXyut/lounge-library" color='default'>
+                <GitHubIcon />
+              </IconButton>
+              <Typography variant='body1' color="#717171">後継者募集中！</Typography>
+            </Stack>
+          </Box>
+          <Box sx={{ height: 20 }} />
       </Container>
     </LendingListContext.Provider>
   </ThemeProvider>
