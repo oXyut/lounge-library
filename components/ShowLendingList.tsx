@@ -20,7 +20,7 @@ export default function ShowLendingList () {
         onChange={handleTabChange}
         variant="fullWidth"
       >
-        <Tab label={<Typography variant='h6'>貸出一覧</Typography>} {...{id: "tab-rent"}}/>
+        <Tab label={<Typography variant='h6'>貸出中</Typography>} {...{id: "tab-rent"}}/>
         <Tab label={<Typography variant='h6'>返却済</Typography>} {...{id: "tab-return"}}/>
       </Tabs>
     </Box>
@@ -30,9 +30,9 @@ export default function ShowLendingList () {
       }}
     >
     { tabValue === 0 ? (
-      <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>貸し出されている書籍</Typography>
+      <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>貸出中一覧</Typography>
     ) : (
-      <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>一週間以内に返却された書籍</Typography>
+      <Typography variant="h5" component="h2" gutterBottom sx={{ textDecoration: 'underline' }}>一ヶ月以内に返却済</Typography>
     )}
     {
           <>
