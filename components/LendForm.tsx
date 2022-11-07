@@ -11,7 +11,6 @@ import axios, { AxiosResponse, AxiosError } from "axios";
 import { StudentIdContext, IsPostingNowContext } from '../pages/index';
 
 import googleAPIExample from "../lib/googleApi.json";
-import { truncateSync } from 'fs';
 
 type RES = typeof googleAPIExample;
 
