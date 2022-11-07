@@ -11,6 +11,7 @@ import axios, { AxiosResponse, AxiosError } from "axios";
 import { StudentIdContext, IsPostingNowContext } from '../pages/index';
 
 import googleAPIExample from "../lib/googleApi.json";
+import { truncateSync } from 'fs';
 
 type RES = typeof googleAPIExample;
 
@@ -23,13 +24,14 @@ export default function LendForm() {
   // カメラが起動しているかどうか
   const [isCamOn, setIsCamOn] = useState<boolean>(false)
   // OCRの進行状況。プログレスバーで使う。
-  const [ocrProgress, setOcrProgress] = useState<{status: string, progress: number}>({status: 'recognizing text', progress: 1})
+  const [ocrProgress, setOcrProgress] = useState<{ status: string, progress: number }>({ status: 'recognizing text', progress: 1 })
   // OCR で取得した文字列
   const [ocr, setOcr] = useState<string>('')
   // カメラで用いる ref
   const webcamRef = useRef<Webcam>(null);
   // 入力されたisbnの本が存在するかどうか
   const [isBookExist, setIsBookExist] = useState<boolean>(false)
+  const [isIsbnValid, setIsIsbnValid] = useState<boolean>(false)
   // Google Books API で取得した書籍のタイトル
   const [title, setTitle] = useState<string>('')
   // Google Books API で取得した書籍の著者
@@ -37,7 +39,7 @@ export default function LendForm() {
   // PostLendingList関数のエラーを収納するuseState
   const [errorPostLendingList, setErrorPostLendingList] = useState<string>("")
   // snakbarを管理するuseState
-  const [snackbar, setSnackbar] = useState<{open: boolean, message: string}>({open: false, message: ""})
+  const [snackbar, setSnackbar] = useState<{ open: boolean, message: string }>({ open: false, message: "" })
 
   // 他のソースコードから参照するためのuseContext
   const { studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler } = useContext(StudentIdContext)
@@ -55,7 +57,7 @@ export default function LendForm() {
   const capture = useCallback(
     () => {
       const imageSrc = webcamRef.current?.getScreenshot();
-      if( imageSrc != null){
+      if (imageSrc != null) {
         // 撮られた画像が null でなければ，image を更新し，OCR を実行する。
         setImage(imageSrc)
         doOCR(imageSrc)
@@ -65,14 +67,14 @@ export default function LendForm() {
   )
 
   // 画像を削除する関数。リトライボタンが押されたときに呼び出される。
-  const delImage = () =>{
+  const delImage = () => {
     setImage(null)
   }
 
   // OCR してくれる労働者を定義
   const worker = createWorker({
     logger: m => {
-      setOcrProgress({status: m.status, progress: m.progress})
+      setOcrProgress({ status: m.status, progress: m.progress })
     }
   })
 
@@ -88,7 +90,7 @@ export default function LendForm() {
 
     // 取得した文字列から ISBN の部分を抽出
     const result = text.match(/(I|1|\[|\])(S|5|s)(B|8|5)N[0-9 -]{9,18}/)
-    if(result){
+    if (result) {
       // ISBN が取得できた場合，結果から数字のみを抽出して isbn に格納
       let resultString = result[0].toString()
       resultString = resultString.slice(4).replaceAll("-", "").replaceAll(" ", "")
@@ -104,20 +106,20 @@ export default function LendForm() {
 
   // isbn が更新されたときに呼び出される関数
   // Google Books API にリクエストを送り，書籍のタイトルと著者を取得する。
-  useEffect(() =>{
-    if ((isbn.length===9) || (isbn.length===10) || (isbn.length===13)){
+  useEffect(() => {
+    if ((isbn.length === 9) || (isbn.length === 10) || (isbn.length === 13)) {
       const _url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
       axios.get(_url)
         .then((res: AxiosResponse<RES>) => {
-          if(res.data.totalItems > 0){
-            if(res.data.items[0].volumeInfo.subtitle){
+          if (res.data.totalItems > 0) {
+            if (res.data.items[0].volumeInfo.subtitle) {
               setTitle(res.data.items[0].volumeInfo.title + " " + res.data.items[0].volumeInfo.subtitle)
-            }else{
+            } else {
               setTitle(res.data.items[0].volumeInfo.title)
             }
-            if(res.data.items[0].volumeInfo.authors){
+            if (res.data.items[0].volumeInfo.authors) {
               setAuthors(res.data.items[0].volumeInfo.authors)
-            }else{
+            } else {
               setAuthors(["著者未定義"])
             }
             setIsBookExist(true)
@@ -128,14 +130,29 @@ export default function LendForm() {
           }
         })
     } else {
-      return
+      setTitle("")
+      setAuthors([""])
+      setIsBookExist(false)
     }
   }, [isbn])
 
   // TextField に直接 ISBN を入力されたときに呼び出される関数
-  const isbnOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>{
+  const isbnOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const _isbn = e.target.value
     setIsbn(_isbn)
+    setIsIsbnValid((_isbn.length === 9) || (_isbn.length === 10) || (_isbn.length === 13))
+  }
+  const titleOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const _title = e.target.value
+    if(!isBookExist){
+      setTitle(_title)
+    }
+  }
+  const authorsOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const _authors = e.target.value.split(",")
+    if(!isBookExist){
+      setAuthors(_authors)
+    }
   }
 
   // axiosでデータベースに貸出情報をjson形式で送る
@@ -151,7 +168,7 @@ export default function LendForm() {
       setIsPostingNow(false)
       setIsBookExist(false)
       setErrorPostLendingList("")
-      setSnackbar({open: true, message: `貸出しました：${title}`})
+      setSnackbar({ open: true, message: `貸出しました：${title}` })
     }).catch((error: AxiosError) => {
       setErrorPostLendingList(error.request.response)
       setIsPostingNow(false)
@@ -164,89 +181,89 @@ export default function LendForm() {
       {
         isCamOn ? (
           <>
-          {
-            image == null ? (
-              <>
-                <Box
-                  sx={{
-                    width: "30em",
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    mx: "auto",
-                  }}
-                >
-                  <Webcam
-                    audio={false}
-                    ref={webcamRef}
-                    forceScreenshotSourceSize
-                    screenshotFormat="image/jpeg"
-                    width="100%"
-                    videoConstraints={videoConstraints}
-                  />
-                </Box>
-                <Box sx={{height:5}}/>
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Stack spacing={2} direction="row">
-                    <Button onClick={capture} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />文字を読み取る</Button>
-                    <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
-                  </Stack>
-                </Box>
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    width: "30em",
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    mx: "auto",
-                  }}
-                >
-                  <img src={image} style={{ maxWidth: "100%", maxHeight:"100%" }} />
-                </Box>
-                <Box sx={{height:5}}/>
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Stack spacing={2} direction="row">
-                    <Button onClick={delImage} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />リトライ</Button>
-                    <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
-                  </Stack>
-                </Box>
-              </>
-            )
-          }
+            {
+              image == null ? (
+                <>
+                  <Box
+                    sx={{
+                      width: "30em",
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      mx: "auto",
+                    }}
+                  >
+                    <Webcam
+                      audio={false}
+                      ref={webcamRef}
+                      forceScreenshotSourceSize
+                      screenshotFormat="image/jpeg"
+                      width="100%"
+                      videoConstraints={videoConstraints}
+                    />
+                  </Box>
+                  <Box sx={{ height: 5 }} />
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Stack spacing={2} direction="row">
+                      <Button onClick={capture} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />文字を読み取る</Button>
+                      <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
+                    </Stack>
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Box
+                    sx={{
+                      width: "30em",
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      mx: "auto",
+                    }}
+                  >
+                    <img src={image} style={{ maxWidth: "100%", maxHeight: "100%" }} />
+                  </Box>
+                  <Box sx={{ height: 5 }} />
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Stack spacing={2} direction="row">
+                      <Button onClick={delImage} variant="contained"><PhotoCameraIcon sx={{ mr: 1 }} />リトライ</Button>
+                      <Button onClick={toggleCam} variant="outlined"><NoPhotographyOutlinedIcon sx={{ mr: 1 }} />カメラをきる</Button>
+                    </Stack>
+                  </Box>
+                </>
+              )
+            }
           </>
         ) : (
           <>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Button onClick={toggleCam} variant="contained">
-              <PhotoCameraIcon sx={{ mr: 1 }} />
-              ISBN をカメラで読み取る
-            </Button>
-          </Box>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Button onClick={toggleCam} variant="contained">
+                <PhotoCameraIcon sx={{ mr: 1 }} />
+                ISBN をカメラで読み取る
+              </Button>
+            </Box>
           </>
         )
       }
-      { !(ocrProgress.progress === 1 && ocrProgress.status === "recognizing text") &&
-      <Box sx={{ width: '100%' }}>
-        <Typography>
-          {ocrProgress.status}
-        </Typography>
-        <LinearProgress variant="determinate" value={ocrProgress.progress * 100} />
-      </Box>
+      {!(ocrProgress.progress === 1 && ocrProgress.status === "recognizing text") &&
+        <Box sx={{ width: '100%' }}>
+          <Typography>
+            {ocrProgress.status}
+          </Typography>
+          <LinearProgress variant="determinate" value={ocrProgress.progress * 100} />
+        </Box>
       }
-      { ocr != "" &&
+      {ocr != "" &&
         <Accordion
           sx={{ my: 2, backgroundColor: "#f0f0f0" }}
         >
@@ -264,21 +281,21 @@ export default function LendForm() {
           </AccordionDetails>
         </Accordion>
       }
-      <Box sx={{ height:20}} />
+      <Box sx={{ height: 20 }} />
       <Typography variant="h6">借りる方法</Typography>
       <Typography>学籍番号とISBNを入力して借りるボタンを押してください</Typography>
       <Typography>※ ISBNはカメラで読み取ることもできます</Typography>
       <Typography>※ ISBNは半角数字（ハイフンなし）で入力（例 : 9784150110000）</Typography>
       <Typography>※ 学籍番号は半角英数字，小文字で入力（例 : 22s2099x）</Typography>
-      <Box sx={{ height:20}} />
+      <Box sx={{ height: 20 }} />
 
       <Stack spacing={2} direction="column">
-          <TextField
-            value={isbn}
-            label="ISBN"
-            onChange={isbnOnChangeHandler}
-            error={isbn.length !== 0 && !isBookExist}
-          ></TextField>
+        <TextField
+          value={isbn}
+          label="ISBN"
+          onChange={isbnOnChangeHandler}
+          error={isbn.length !== 0 && !isBookExist}
+        ></TextField>
 
         <TextField
           value={studentId}
@@ -286,20 +303,51 @@ export default function LendForm() {
           onChange={studentIdOnChangeHandler}
           error={studentId.length !== 0 && !isStudentIdValid}
         ></TextField>
+        {(!isBookExist && isIsbnValid) &&
+          <Typography>本が見つかりませんでした</Typography>
+        }
+        <Typography>
+          著者：{authors}
+        </Typography>
+        <Typography>
+          タイトル：{title}
+        </Typography>
         {
-          isBookExist ? (
-          <Typography>
-            {
-              title != "" &&
-              authors + "「" + title + "」"
-            }
-          </Typography>
-          ) : (<></>)
+          (!isBookExist && isIsbnValid) &&
+          <Accordion
+            sx={{ my: 2, backgroundColor: "#f0f0f0" }}
+          >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography>本の情報を入力</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>
+              著者とタイトルを入力してください。
+            </Typography>
+            <Typography>
+              ※ 著者はカンマ区切りで入力してください（例 : 田中太郎,山田花子）
+            </Typography>
+            <Stack spacing={2} direction="column">
+              <TextField
+                label="著者"
+                onChange={authorsOnChangeHandler}
+              >
+              </TextField>
+              <TextField
+                label="タイトル"
+                onAbort={titleOnChangeHandler}
+              >
+              </TextField>
+            </Stack>
+          </AccordionDetails>
+          </Accordion>
         }
         <Button
           variant="contained"
           onClick={postLendingList}
-          disabled={isPostingNow || !isBookExist || !isStudentIdValid}
+          disabled={isPostingNow || (isIsbnValid && (title === "" || (authors.length === 1 && authors[0] == ""))) || !isStudentIdValid}
         >
           借りる
         </Button>
@@ -311,22 +359,22 @@ export default function LendForm() {
           horizontal: 'center',
         }}
         autoHideDuration={6000}
-        message = {snackbar.message}
-        onClose={() => setSnackbar({open: false, message: ""})}
+        message={snackbar.message}
+        onClose={() => setSnackbar({ open: false, message: "" })}
       />
 
       {
         isPostingNow ? (
           <LinearProgress />
-        ): (
+        ) : (
           <></>
         )
       }
 
       {
-        (errorPostLendingList !== "") ?(
+        (errorPostLendingList !== "") ? (
           <Typography color="error">{errorPostLendingList}</Typography>
-        ):(
+        ) : (
           <></>
         )
       }
