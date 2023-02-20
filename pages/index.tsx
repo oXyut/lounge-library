@@ -1,26 +1,23 @@
-import './App.css';
 import { useState, useEffect, createContext } from 'react';
 import { Button, Box, Typography, Paper, Tab, Tabs, Stack, Container } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
-import firebaseURL from "./firebaseURL.json"
 
-import LendForm from "./components/LendForm";
-import ReturnForm from "./components/ReturnForm";
-import ShowLendingList from './components/ShowLendingList';
-import AppBar from "./components/AppBar"
+import LendForm from "../components/LendForm";
+import ReturnForm from "../components/ReturnForm";
+import ShowLendingList from '../components/ShowLendingList';
+import AppBar from "../components/AppBar"
 
 type typeLendingList = {
   id : string,
-  data: {
-  lendingDatetime: {_seconds: number, _nanoseconds: number},
-  isLendingNow: boolean,
+  lendingDatetime: number,
   bookIsbn: string,
   bookAuthors: string[],
   bookTitle: string,
   studentId: string,
-  }
+  isLendingNow: boolean,
+  returnedDatetime: number,
 }
 
 const theme = createTheme({
@@ -41,18 +38,25 @@ const theme = createTheme({
 });
 
 
-const getDatabaseURL = firebaseURL.root + "/getDatabase";
-
 
 export const StudentIdContext = createContext({} as {
-  studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>, isStudentIdValid: boolean, studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
+  studentId: string, setStudentId: React.Dispatch<React.SetStateAction<string>>,
+  isStudentIdValid: boolean,
+  studentIdOnChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void,
 });
 export const IsPostingNowContext = createContext({} as {
   isPostingNow: boolean, setIsPostingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
-export const LendingListContext = createContext({} as {
-  lendingList: typeLendingList[], setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+export const IsGettingNowContext = createContext({} as {
+  isGettingNow: boolean, setIsGettingNow: React.Dispatch<React.SetStateAction<boolean>>,
 });
+export const LendingListContext = createContext({} as {
+  lendingList: typeLendingList[],
+  setLendingList: React.Dispatch<React.SetStateAction<typeLendingList[]>>,
+  fetchLendingList: () => void,
+  isGettingNow: boolean,
+});
+
 
 function App() {
   // useState の定義一覧。
@@ -60,6 +64,8 @@ function App() {
   const [studentId, setStudentId] = useState<string>('')
   // Axios Response Type
   const [lendingList, setLendingList] = useState<typeLendingList[]>([])
+  // getでデータベースからのレスポンスを待っているかどうか
+  const [isGettingNow, setIsGettingNow] = useState<boolean>(false)
 
   // 本の貸出登録を行うときのプログレスバーの表示フラグ管理
   const [isPostingNow, setIsPostingNow] = useState<boolean>(false)
@@ -70,20 +76,22 @@ function App() {
   // tabの状態を管理するuseState
   const [tabValue, setTabValue] = useState<number>(0)
 
-  // axiosでデータベースにリクエストを送る
-  const sendRequestToGetDatabase = async () => {
-    const response = await axios.get<typeLendingList[]>(getDatabaseURL, {
+  // axios経由でデータベースからLendingListを取ってくる
+  const fetchLendingList = async () => {
+    setIsGettingNow(true);
+    const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
     })
     const { data } = response;
     // dataをdata.data.lendingDatetimeをキーとして降順でソートする
     data.sort((a, b) => {
-      if (a.data.lendingDatetime._seconds > b.data.lendingDatetime._seconds) {
+      if (a.lendingDatetime > b.lendingDatetime) {
         return -1;
       } else {
         return 1;
       }
     })
     setLendingList(data);
+    setIsGettingNow(false);
   }
 
   // TextField に studentId を入力されたときに呼び出される関数
@@ -106,7 +114,7 @@ function App() {
   // データベースにリクエストを送って貸出情報を更新する
   //(isPostingNowを見てるのは暫定的な処理で，後で変更が必要かも)
   useEffect(() => {
-    sendRequestToGetDatabase()
+    fetchLendingList()
     // worning を黙らせてる↓
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPostingNow])
@@ -119,58 +127,52 @@ function App() {
   return (
     <>
     <ThemeProvider theme={theme}>
-    <LendingListContext.Provider value={{lendingList, setLendingList}}>
-    <Container>
-    {/* <Typography variant="h4" component="h1" gutterBottom>リフレッシュラウンジ6F貸出管理システム</Typography> */}
-    <AppBar/>
-    <Stack spacing={2}>
-      <Paper
-      elevation={3}
-      >
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          variant="fullWidth"
-        >
-          <Tab label={<Typography variant='h6'>貸出</Typography>} {...{id: "tab-rent"}}/>
-          <Tab label={<Typography variant='h6'>返却</Typography>} {...{id: "tab-return"}}/>
-        </Tabs>
-      </Box>
-      <Box
-        sx={{
-          p: 3,
-        }}
-      >
-        <StudentIdContext.Provider value={{studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler}}>
-          <IsPostingNowContext.Provider value={{isPostingNow, setIsPostingNow}}>
+      <LendingListContext.Provider value={{lendingList, setLendingList, fetchLendingList, isGettingNow}}>
+        <Container>
+          <AppBar/>
+          <Stack spacing={2}>
+            <Paper
+            elevation={3}
+            >
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                  value={tabValue}
+                  onChange={handleTabChange}
+                  variant="fullWidth"
+                >
+                  <Tab label={<Typography variant='h6'>貸出</Typography>} {...{id: "tab-rent"}}/>
+                  <Tab label={<Typography variant='h6'>返却</Typography>} {...{id: "tab-return"}}/>
+                </Tabs>
+              </Box>
+              <Box
+                sx={{
+                  p: 3,
+                }}
+              >
+                <StudentIdContext.Provider value={{studentId, setStudentId, isStudentIdValid, studentIdOnChangeHandler}}>
+                  <IsPostingNowContext.Provider value={{isPostingNow, setIsPostingNow}}>
 
-            {tabValue === 0 &&
-              <LendForm />
-            }
-            {tabValue === 1 &&
-              <ReturnForm />
-            }
-          </IsPostingNowContext.Provider>
-        </StudentIdContext.Provider>
-      </Box>
-    </Paper>
+                    {tabValue === 0 &&
+                      <LendForm />
+                    }
+                    {tabValue === 1 &&
+                      <ReturnForm />
+                    }
+                  </IsPostingNowContext.Provider>
+                </StudentIdContext.Provider>
+              </Box>
+            </Paper>
 
-    <Paper
-      elevation={3}
-      sx={{
-        p: 3,
-      }}
-    >
-    <ShowLendingList />
-    <Button onClick={sendRequestToGetDatabase}>
-      <ReplayIcon sx={{ mr: 1 }} />
-      更新する
-    </Button>
-  </Paper>
-  </Stack>
-  </Container>
-  </LendingListContext.Provider>
+            <Paper
+              elevation={3}
+            >
+              <IsGettingNowContext.Provider value={{isGettingNow, setIsGettingNow}}>
+                <ShowLendingList />
+              </IsGettingNowContext.Provider>
+            </Paper>
+          </Stack>
+      </Container>
+    </LendingListContext.Provider>
   </ThemeProvider>
   </>
   );

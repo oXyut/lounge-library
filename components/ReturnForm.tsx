@@ -2,25 +2,9 @@ import { useEffect, useState, useContext } from 'react';
 import { TextField } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Typography, Box, Snackbar } from '@mui/material';
 import { LinearProgress } from '@mui/material';
-// import _typeLendingList from '../../lib/typeLendingList.json';
-import firebaseURL from '../firebaseURL.json';
 import axios, { AxiosResponse, AxiosError } from "axios";
-import { StudentIdContext, LendingListContext, IsPostingNowContext } from '../App';
+import { StudentIdContext, LendingListContext, IsPostingNowContext } from '../pages/index';
 import dayjs from 'dayjs';
-
-type typeLendingList = {
-  id : string,
-  data: {
-    lendingDatetime: {_seconds: number, _nanoseconds: number},
-  isLendingNow: boolean,
-  bookIsbn: string,
-  bookAuthors: string[],
-  bookTitle: string,
-  studentId: string,
-  }
-}
-
-const toggleIsLendingNowURL = firebaseURL.root + "/toggleIsLendingNow";
 
 
 export default function RetrunForm () {
@@ -33,7 +17,7 @@ export default function RetrunForm () {
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string}>({open: false, message: ""})
 
   useEffect(() => {
-    const lendingListByStudentId = lendingList.filter((lending) => lending.data.studentId === studentId)
+    const lendingListByStudentId = lendingList.filter((lending) => lending.studentId === studentId)
     var newRetrunableList: {[key:string]:boolean}= {}
     lendingListByStudentId.forEach((lending) => {
       newRetrunableList[lending.id] = false
@@ -44,15 +28,23 @@ export default function RetrunForm () {
 
   const returnBook = async () => {
     const ids = Object.keys(isBookGoingToBeReturned).filter((key) => isBookGoingToBeReturned[key])
+    const data = ids.map((id) => lendingList.filter((lending) => lending.id === id)[0]).map((lending) => {
+      return {
+        id: lending.id,
+        isLendingNow: lending.isLendingNow
+      }
+    })
+    console.log(data)
     setIsPostingNow(true)
-    await axios.post<typeLendingList>(toggleIsLendingNowURL, {ids})
+    await axios.post("/api/returnBooks", {data})
       .then((response: AxiosResponse) => {
-        setTimeout(()=>{setIsPostingNow(false)}, 500); // firestoreの反映に時間がかかるので、0.5秒待つ
-        setSnackbar({open: true, message: `${ids.length}冊返却しました`});
+      setIsPostingNow(false);
+      setSnackbar({open: true, message: `${ids.length}冊返却しました`})
     }).catch((error: AxiosError) => {
       setIsPostingNow(false);
     })
   }
+
   const checkboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.name
     setIsBookGoingToBeReturned({...isBookGoingToBeReturned, [id]: e.target.checked})
@@ -111,7 +103,7 @@ export default function RetrunForm () {
             <TableBody>
               {lendingList.map((row) => (
                 <>
-                { row.data.studentId === studentId &&
+                { row.studentId === studentId &&
                   <TableRow
                   key={row.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -120,17 +112,17 @@ export default function RetrunForm () {
                     <Checkbox name={row.id} checked={isBookGoingToBeReturned[row.id] === undefined ? false : isBookGoingToBeReturned[row.id]} onChange={ checkboxHandler } />
                   </TableCell>
                     {
-                      row.data.isLendingNow ? (
+                      row.isLendingNow ? (
                         <TableCell>貸出中</TableCell>
                       ) : (
                         <TableCell>返却済み</TableCell>
                       )
                     }
-                    <TableCell >{dayjs.unix(row.data.lendingDatetime._seconds).format("YY/MM/DD")}</TableCell>
+                    <TableCell >{dayjs.unix(row.lendingDatetime/1000).format("YY/MM/DD")}</TableCell>
                     {/* <TableCell >{row.studentId}</TableCell> */}
                     {/* <TableCell component="th" scope="row">{row.bookIsbn}</TableCell> */}
-                    <TableCell >{row.data.bookTitle}</TableCell>
-                    <TableCell >{row.data.bookAuthors.join(", ")}</TableCell>
+                    <TableCell >{row.bookTitle}</TableCell>
+                    <TableCell >{row.bookAuthors.join(", ")}</TableCell>
                   </TableRow>
                 }
                 </>
