@@ -319,7 +319,7 @@ export default function LendForm() {
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
           >
-            <Typography>本の情報を入力</Typography>
+            <Typography>本が見つかりませんか？</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
@@ -328,6 +328,7 @@ export default function LendForm() {
             <Typography>
               ※ 著者はカンマ区切りで入力してください（例 : 田中太郎,山田花子）
             </Typography>
+            <Box sx={{height:20}}></Box>
             <Stack spacing={2} direction="column">
               <TextField
                 label="著者"

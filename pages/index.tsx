@@ -178,8 +178,8 @@ function App() {
               <IconButton href="https://github.com/oXyut/lounge-library" color='default'>
                 <GitHubIcon />
               </IconButton>
-              <Typography variant='body1' color="#717171">後継者募集中！</Typography>
-              <Typography variant='body1' color="#717171">Web開発に興味がある人は是非！</Typography>
+              <Typography variant='body1' color="#717171">後継者募集中！Web開発に興味がある人は是非！</Typography>
+              <Typography variant='body1' color="#717171">contact: 22ss203a@shinshu-u.ac.jp</Typography>
             </Stack>
           </Box>
           <Box sx={{ height: 20 }} />
