@@ -172,11 +172,14 @@ function App() {
             justifyContent="center"
             alignItems="center"
           >
-            <Stack>
+            <Stack
+              alignItems="center"
+            >
               <IconButton href="https://github.com/oXyut/lounge-library" color='default'>
                 <GitHubIcon />
               </IconButton>
               <Typography variant='body1' color="#717171">後継者募集中！</Typography>
+              <Typography variant='body1' color="#717171">Web開発に興味がある人は是非！</Typography>
             </Stack>
           </Box>
           <Box sx={{ height: 20 }} />
