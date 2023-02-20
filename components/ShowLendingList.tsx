@@ -42,6 +42,7 @@ export default function ShowLendingList () {
               <TableHead>
                 <TableRow>
                   <TableCell>{ tabValue == 0 ? "貸出日" : "返却日" }</TableCell>
+                  { tabValue == 0 && <TableCell>返却期限</TableCell>}
                   <TableCell>学籍番号</TableCell>
                   <TableCell>タイトル</TableCell>
                   <TableCell>著者</TableCell>
@@ -57,6 +58,9 @@ export default function ShowLendingList () {
                       <TableCell >{dayjs.unix(row.lendingDatetime/1000).format("YY/MM/DD")}</TableCell>
                     ) : (
                       <TableCell >{dayjs.unix(row.returnedDatetime/1000).format("YY/MM/DD")}</TableCell>
+                    )}
+                    { tabValue == 0 &&(
+                      <TableCell style={row.lendingDatetime/1000 > row.lendingDatetime/1000 + 1209600 ? {color:"red"}:{}}>{dayjs.unix(row.lendingDatetime/1000 + 1209600).format("YY/MM/DD")}</TableCell>
                     )}
                     <TableCell >{row.studentId}</TableCell>
                     <TableCell >{row.bookTitle}</TableCell>
