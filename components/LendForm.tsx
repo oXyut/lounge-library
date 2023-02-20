@@ -336,7 +336,7 @@ export default function LendForm() {
               </TextField>
               <TextField
                 label="タイトル"
-                onAbort={titleOnChangeHandler}
+                onChange={titleOnChangeHandler}
               >
               </TextField>
             </Stack>
