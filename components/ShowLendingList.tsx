@@ -3,7 +3,7 @@ import { Typography, LinearProgress } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Tabs, Tab, Button } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 
-import { LendingListContext, IsGettingNowContext } from '../pages/index';
+import { LendingListContext } from '../pages/index';
 import dayjs from 'dayjs';
 
 export default function ShowLendingList () {
