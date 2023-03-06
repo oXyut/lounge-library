@@ -47,16 +47,19 @@ cron.schedule('0 0 * * *', () => {
 
   newArchiveData.forEach((element:Lending)  => {
     const date = element.returnedDatetime ? new Date(element.returnedDatetime) : new Date()
-    const archiveDataPath = path.join(process.cwd(), 'data', 'archive', `${date.getFullYear()}-${date.getMonth() + 1}.json`)
+    const archiveDataPath = path.join(process.cwd(), 'data', 'archive', `${date.getFullYear()}-${date.getMonth() + 1}.csv`)
 
     try{
       fs.statSync(archiveDataPath)
     } catch (err) {
-      fs.writeFileSync(archiveDataPath, '[]')
+      // なければcsvファイルを作成
+      // ヘッダーを書き込み
+      fs.writeFileSync(archiveDataPath, 'studentId,bookIsbn,bookTitle,bookAuthors,lendingDatetime,returnedDatetime\n')
     }
 
-    const archiveData = [...JSON.parse(fs.readFileSync(archiveDataPath, 'utf8')), element]
-    fs.writeFileSync(archiveDataPath, JSON.stringify(archiveData))
+    // csvとして書き込み
+    const archiveDataPathCSV = `${element.studentId},${element.bookIsbn},${element.bookTitle},${element.bookAuthors.join("，")},${element.lendingDatetime},${element.returnedDatetime}\n`
+    fs.appendFileSync(archiveDataPath, archiveDataPathCSV)
   });
   fs.writeFileSync(returnedDataPath, JSON.stringify(returnedData))
   console.log(`Archived ${newArchiveData.length} items.(${new Date()})`)

@@ -306,7 +306,7 @@ export default function LendForm() {
           <Typography>本が見つかりませんでした</Typography>
         }
         <Typography>
-          著者：{authors}
+          著者：{authors.join("，")}
         </Typography>
         <Typography>
           タイトル：{title}
