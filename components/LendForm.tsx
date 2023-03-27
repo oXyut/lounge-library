@@ -8,7 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Webcam from 'react-webcam';
 import axios, { AxiosResponse, AxiosError } from "axios";
 
-import { StudentIdContext, IsPostingNowContext } from '../pages/index';
+import { StudentIdContext, IsPostingNowContext } from 'pages/lounge-library/index';
 
 import googleAPIExample from "../lib/googleApi.json";
 

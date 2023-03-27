@@ -3,7 +3,7 @@ import { TextField } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Typography, Box, Snackbar } from '@mui/material';
 import { LinearProgress } from '@mui/material';
 import axios, { AxiosResponse, AxiosError } from "axios";
-import { StudentIdContext, LendingListContext, IsPostingNowContext } from '../pages/index';
+import { StudentIdContext, LendingListContext, IsPostingNowContext } from 'pages/lounge-library/index';
 import dayjs from 'dayjs';
 
 

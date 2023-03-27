@@ -4,10 +4,10 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
 
-import LendForm from "../components/LendForm";
-import ReturnForm from "../components/ReturnForm";
-import ShowLendingList from '../components/ShowLendingList';
-import AppBar from "../components/AppBar"
+import LendForm from "components/LendForm";
+import ReturnForm from "components/ReturnForm";
+import ShowLendingList from 'components/ShowLendingList';
+import AppBar from "components/AppBar"
 
 type typeLendingList = {
   id : string,
