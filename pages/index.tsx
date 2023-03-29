@@ -76,7 +76,7 @@ function App() {
   // axios経由でデータベースからLendingListを取ってくる
   const fetchLendingList = async () => {
     setIsGettingNow(true);
-    const response = await axios.get<typeLendingList[]>("/api/getLendingList", {
+    const response = await axios.get<typeLendingList[]>("/lounge-library/api/getLendingList", {
     })
     const { data } = response;
     // dataをdata.data.lendingDatetimeをキーとして降順でソートする

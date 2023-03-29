@@ -2,14 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  async rewrites() {
-    return [
-      {
-        source: '/lounge-library/index',
-        destination: '/lounge-library/index'
-      }
-    ]
-  }
+  basePath: "/lounge-library",
+  assetPrefix: "/lounge-library",
 }
 
 module.exports = nextConfig

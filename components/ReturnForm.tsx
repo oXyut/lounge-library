@@ -3,7 +3,7 @@ import { TextField } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Typography, Box, Snackbar } from '@mui/material';
 import { LinearProgress } from '@mui/material';
 import axios, { AxiosResponse, AxiosError } from "axios";
-import { StudentIdContext, LendingListContext, IsPostingNowContext } from 'pages/lounge-library/index';
+import { StudentIdContext, LendingListContext, IsPostingNowContext } from 'pages/index';
 import dayjs from 'dayjs';
 
 
@@ -36,7 +36,7 @@ export default function RetrunForm () {
     })
     console.log(data)
     setIsPostingNow(true)
-    await axios.post("/api/returnBooks", {data})
+    await axios.post("/lounge-library/api/returnBooks", {data})
       .then((response: AxiosResponse) => {
       setIsPostingNow(false);
       setSnackbar({open: true, message: `${ids.length}冊返却しました`})

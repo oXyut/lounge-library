@@ -8,7 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Webcam from 'react-webcam';
 import axios, { AxiosResponse, AxiosError } from "axios";
 
-import { StudentIdContext, IsPostingNowContext } from 'pages/lounge-library/index';
+import { StudentIdContext, IsPostingNowContext } from 'pages/index';
 
 import googleAPIExample from "../lib/googleApi.json";
 
@@ -157,7 +157,7 @@ export default function LendForm() {
   // axiosでデータベースに貸出情報をjson形式で送る
   const postLendingList = async () => {
     setIsPostingNow(true)
-    await axios.post("/api/postNewLending", {
+    await axios.post("/lounge-library/api/postNewLending", {
       bookIsbn: isbn,
       bookAuthors: authors,
       bookTitle: title,

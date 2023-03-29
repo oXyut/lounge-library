@@ -1,7 +1,6 @@
 {
   "name": "lounge-library-next",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "dev": "tsc -p tsconfig.server.json && NODE_ENV=development node ./dist/index.js",
     "build:next": "next build",
